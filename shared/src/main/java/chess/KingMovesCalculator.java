@@ -36,6 +36,6 @@ public class KingMovesCalculator implements PieceMovesCalculator{
                 validMoves.add(new ChessMove(position,pos));
             }
         }
-        return null;
+        return validMoves;
     }
 }
