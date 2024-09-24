@@ -13,7 +13,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
         //Vertical UP
         ChessPosition current = new ChessPosition(position.getRow(), position.getColumn());
         while(true) {
-            ChessPosition upOne = new ChessPosition(position.getRow() + 1, position.getColumn());
+            ChessPosition upOne = new ChessPosition(current.getRow() + 1, current.getColumn());
             if (board.emptySpaceOnBoard(upOne)) {
                 validMoves.add(new ChessMove(position,upOne));
                 current = upOne;
@@ -31,7 +31,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
         //Vertical DOWN
         current = new ChessPosition(position.getRow(), position.getColumn());
         while(true) {
-            ChessPosition downOne = new ChessPosition(position.getRow() - 1, position.getColumn());
+            ChessPosition downOne = new ChessPosition(current.getRow() - 1, current.getColumn());
             if (board.emptySpaceOnBoard(downOne)) {
                 validMoves.add(new ChessMove(position,downOne));
                 current = downOne;
@@ -49,7 +49,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
         //Horizontal Left
         current = new ChessPosition(position.getRow(), position.getColumn());
         while(true) {
-            ChessPosition leftOne = new ChessPosition(position.getRow(), position.getColumn() - 1);
+            ChessPosition leftOne = new ChessPosition(current.getRow(), current.getColumn() - 1);
             if (board.emptySpaceOnBoard(leftOne)) {
                 validMoves.add(new ChessMove(position,leftOne));
                 current = leftOne;
@@ -67,7 +67,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
         //Horizontal Right
         current = new ChessPosition(position.getRow(), position.getColumn());
         while(true) {
-            ChessPosition rightOne = new ChessPosition(position.getRow(), position.getColumn() + 1);
+            ChessPosition rightOne = new ChessPosition(current.getRow(), current.getColumn() + 1);
             if (board.emptySpaceOnBoard(rightOne)) {
                 validMoves.add(new ChessMove(position,rightOne));
                 current = rightOne;
