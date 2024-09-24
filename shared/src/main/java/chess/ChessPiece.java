@@ -35,7 +35,35 @@ public class ChessPiece {
         switch (type) {
             case PAWN:
                 calculator = new PawnMovesCalculator();
+            case ROOK:
+                calculator = new RookMovesCalculator();
+            case KNIGHT:
+                calculator = new KnightMovesCalculator();
+            case BISHOP:
+                calculator = new BishopMovesCalculator();
+            case KING:
+                calculator = new KingMovesCalculator();
+            case QUEEN:
+                calculator = new QueenMovesCalculator();
+            default:
+                throw new IllegalArgumentException("Unknown piece type: " + type);
+        }
+    }
 
+    public String toString() {
+        switch (type) {
+            case PAWN:
+                return "P";
+            case ROOK:
+                return "R";
+            case KNIGHT:
+                return "N";
+            case BISHOP:
+                return "B";
+            case KING:
+                return "K";
+            case QUEEN:
+                return "Q";
             default:
                 throw new IllegalArgumentException("Unknown piece type: " + type);
         }
@@ -64,6 +92,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return calculator.calculateMoves(board, myPosition);
     }
 }

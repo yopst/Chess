@@ -54,7 +54,78 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        chessBoard = new ChessPiece[8][8];
+
+        //set Pawns
+        for (int column = 1; column <= 8; column++) {
+            ChessPiece pawnW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            ChessPiece pawnB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            addPiece(new ChessPosition(2,column), pawnW);
+            addPiece(new ChessPosition(7,column), pawnB);
+        }
+
+        //set Rooks
+        for (int i = 1; i <= 2; i++) {
+            int col = 1;
+            if (i == 2) {
+                col = 8;
+            }
+            ChessPiece rookW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+            ChessPiece rookB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+
+            ChessPosition positionW = new ChessPosition(1,col);
+            ChessPosition positionB = new ChessPosition(8,col);
+            addPiece(positionW, rookW);
+            addPiece(positionB, rookB);
+        }
+
+        // Set Knights
+        for (int i = 1; i <= 2; i++) {
+            int col = 2;
+            if (i == 2) {
+                col = 7;
+            }
+            ChessPiece knightW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
+            ChessPiece knightB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+
+            ChessPosition positionW = new ChessPosition(1,col);
+            ChessPosition positionB = new ChessPosition(8,col);
+            addPiece(positionW, knightW);
+            addPiece(positionB, knightB);
+        }
+
+        //Set Bishops
+        for (int i = 1; i <= 2; i++) {
+            int col = 3;
+            if (i == 2) {
+                col = 6;
+            }
+            ChessPiece bishopW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+            ChessPiece bishopB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+
+            ChessPosition positionW = new ChessPosition(1,col);
+            ChessPosition positionB = new ChessPosition(8,col);
+            addPiece(positionW, bishopW);
+            addPiece(positionB, bishopB);
+        }
+
+        //Set Queens
+        ChessPiece queenW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        ChessPiece queenB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+
+        ChessPosition positionW = new ChessPosition(1,4);
+        ChessPosition positionB = new ChessPosition(8,4);
+        addPiece(positionW, queenW);
+        addPiece(positionB, queenB);
+
+        //Set Kings
+        ChessPiece kingW = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
+        ChessPiece kingB = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+
+        positionW = new ChessPosition(1,5);
+        positionB = new ChessPosition(8,5);
+        addPiece(positionW, kingW);
+        addPiece(positionB, kingB);
     }
 
     public ChessMove getLastMove() {
@@ -99,7 +170,7 @@ public class ChessBoard {
         }
         return true;
     }
-    public String to_string() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         for (ChessPiece[] row : chessBoard) {
             for (ChessPiece piece: row) {
