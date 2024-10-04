@@ -51,16 +51,22 @@ public class ChessPiece {
     public String toString() {
         switch (type) {
             case PAWN:
+                if (color == ChessGame.TeamColor.BLACK) return "p";
                 return "P";
             case ROOK:
+                if (color == ChessGame.TeamColor.BLACK) return "r";
                 return "R";
             case KNIGHT:
+                if (color == ChessGame.TeamColor.BLACK) return "n";
                 return "N";
             case BISHOP:
+                if (color == ChessGame.TeamColor.BLACK) return "b";
                 return "B";
             case KING:
+                if (color == ChessGame.TeamColor.BLACK) return "k";
                 return "K";
             case QUEEN:
+                if (color == ChessGame.TeamColor.BLACK) return "q";
                 return "Q";
             default:
                 throw new IllegalArgumentException("Unknown piece type: " + type);

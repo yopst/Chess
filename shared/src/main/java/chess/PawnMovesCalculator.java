@@ -88,6 +88,17 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                 }
                 validMoves.add(move);
             }
+            if (board.enPassantPosition() != null)  {
+                if (board.enPassantPosition().equals(diagonal1Left)) {
+                    ChessMove enPassant = new ChessMove(position, diagonal1Left);
+                    enPassant.setEnPassant();
+                    validMoves.add(enPassant);
+                } else if (board.enPassantPosition().equals(diagonal1Right)) {
+                    ChessMove enPassant = new ChessMove(position, diagonal1Right);
+                    enPassant.setEnPassant();
+                    validMoves.add(enPassant);
+                }
+            }
         }
         if (color == ChessGame.TeamColor.BLACK) {
             ChessPosition diagonal1Left = new ChessPosition(position.getRow() - 1, position.getColumn() - 1);
@@ -115,6 +126,17 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                     validMoves.add(new ChessMove(position, diagonal1Right, ChessPiece.PieceType.ROOK));
                 }
                 validMoves.add(move);
+            }
+            if (board.enPassantPosition() != null)  {
+                if (board.enPassantPosition().equals(diagonal1Left)) {
+                    ChessMove enPassant = new ChessMove(position, diagonal1Left);
+                    enPassant.setEnPassant();
+                    validMoves.add(enPassant);
+                } else if (board.enPassantPosition().equals(diagonal1Right)) {
+                    ChessMove enPassant = new ChessMove(position, diagonal1Right);
+                    enPassant.setEnPassant();
+                    validMoves.add(enPassant);
+                }
             }
         }
         return validMoves;

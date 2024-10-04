@@ -13,12 +13,15 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor turn;
     private ChessBoard board;
+    private ChessBoard lastBoard;
 
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
         board = new ChessBoard();
         board.resetBoard();
     }
+
+
 
     private void changeTurns() {
         if (turn == TeamColor.WHITE) {
@@ -39,6 +42,10 @@ public class ChessGame {
         board.addPiece(end,piece);
         board.removePiece(start);
         this.changeTurns();
+    }
+
+    private void revertBoard() {
+        board = lastBoard;
     }
 
     public ChessPiece promotePiece(ChessMove move) {
@@ -116,8 +123,10 @@ public class ChessGame {
         for (ChessMove move: potentialMoves) {
             try {
                 ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
+                ChessMove pausedLastMove = board.getLastMove();
                 this.makeMove(move);
                 this.undoMove();
+                board.setLastMove(pausedLastMove);
                 board.addPiece(move.getEndPosition(),capturedPiece);
                 validMoves.add(move);
             } catch (InvalidMoveException e) {
@@ -157,21 +166,40 @@ public class ChessGame {
         //Is this move even a potentialMove given the pieceMoves
         Collection<ChessMove> moves = board.getPiece(move.getStartPosition()).pieceMoves(board,move.getStartPosition());
         if (moves.contains(move)) {
+            lastBoard = board;
             if (board.whereIsTheKing(turn) != null) {
-                //boolean wasInCheck = isInCheck(turn);
                 ChessPiece capturedPiece = board.getPiece(end);
                 if (this.promotePiece(move) != null) {
-                    board.addPiece(end,this.promotePiece(move));
+                    board.addPiece(end, this.promotePiece(move));
                 }
                 else {
                     board.addPiece(end,piece);
                 }
                 board.removePiece(start);
+                ChessMove pausedLastMove = board.getLastMove();
                 board.setLastMove(move);
-                if (isInCheck(turn) /*&& wasInCheck*/) {
+                if (move.getIsEnPassant()) {
+                    if (board.getPiece(end).getTeamColor() == TeamColor.WHITE) {
+                        ChessPosition downOne = new ChessPosition(end.getRow() - 1, end.getColumn());
+                        capturedPiece = board.getPiece(downOne);
+                        board.removePiece(downOne);
+                    }
+                    else {
+                        ChessPosition upOne = new ChessPosition(end.getRow() + 1, end.getColumn());
+                        capturedPiece = board.getPiece(upOne);
+                        board.removePiece(upOne);
+                    }
+                }
+                if (isInCheck(turn)) {
                     this.undoMove();
-                    board.addPiece(end,capturedPiece);
+                    if (move.getIsEnPassant()) {
+                        this.revertBoard();
+                    }
+                    else {
+                        board.addPiece(end,capturedPiece);
+                    }
                     this.changeTurns();
+                    board.setLastMove(pausedLastMove);
                     throw new InvalidMoveException("Invalid Move: your King is in check by making this move.");
                 }
             }
@@ -184,6 +212,16 @@ public class ChessGame {
                     board.addPiece(end,piece);
                 }
                 board.removePiece(start);
+                if (move.getIsEnPassant()) {
+                    if (board.getPiece(end).getTeamColor() == TeamColor.WHITE) {
+                        ChessPosition downOne = new ChessPosition(end.getRow() - 1, end.getColumn());
+                        board.removePiece(downOne);
+                    }
+                    else {
+                        ChessPosition upOne = new ChessPosition(end.getRow() + 1, end.getColumn());
+                        board.removePiece(upOne);
+                    }
+                }
                 board.setLastMove(move);
             }
             this.changeTurns();
@@ -294,8 +332,10 @@ public class ChessGame {
                     Collection<ChessMove> moves = board.getPiece(pos).pieceMoves(board,pos);
                     for (ChessMove move: moves) {
                         try {
+                            ChessMove pausedLastMove = board.getLastMove();
                             this.makeMove(move);
                             this.undoMove();
+                            board.setLastMove(pausedLastMove);
                             return false;
                         } catch (InvalidMoveException e) { }
                     }
@@ -330,9 +370,11 @@ public class ChessGame {
                     for (ChessMove move: moves) {
                         try {
                             ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
+                            ChessMove pausedLastMove = board.getLastMove();
                             this.makeMove(move);
                             this.undoMove();
                             board.addPiece(move.getEndPosition(),capturedPiece);
+                            board.setLastMove(pausedLastMove);
                             return false;
                         } catch (InvalidMoveException e) {
                             numMovesAvailable--;

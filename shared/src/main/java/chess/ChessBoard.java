@@ -170,6 +170,21 @@ public class ChessBoard {
         }
         return true;
     }
+
+    public ChessPosition enPassantPosition() {
+        if (lastMove != null &&
+                this.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                (lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) % 2 == 0) {
+            if (this.getPiece(lastMove.getEndPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return new ChessPosition(lastMove.getEndPosition().getRow() - 1,lastMove.getEndPosition().getColumn());
+            }
+            else {
+                return new ChessPosition(lastMove.getEndPosition().getRow() + 1,lastMove.getEndPosition().getColumn());
+            }
+        }
+        return null;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (ChessPiece[] row : chessBoard) {

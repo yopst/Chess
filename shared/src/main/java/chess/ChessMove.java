@@ -12,6 +12,7 @@ public class ChessMove {
     private ChessPosition start;
     private ChessPosition end;
     private ChessPiece.PieceType promotionType;
+    private boolean isEnPassant;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
         start = startPosition;
@@ -29,6 +30,13 @@ public class ChessMove {
     public ChessMove reverseMove() {
         ChessMove undo = new ChessMove(end,start);
         return undo;
+    }
+
+    public void setEnPassant() {
+        isEnPassant = true;
+    }
+    public boolean getIsEnPassant() {
+        return isEnPassant;
     }
 
     @Override
