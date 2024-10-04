@@ -118,6 +118,9 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
+        if (piece == null) {
+            throw new InvalidMoveException("Invalid move: there is no piece at start position.");
+        }
         if (piece.getTeamColor() != turn) {
             throw new InvalidMoveException("Invalid move: The piece being moved is not of the teamcolor who's turn it is.");
         }
@@ -125,7 +128,7 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid move: Start position must be on the board and not empty.");
         }
         if (!board.onBoard(end)) {
-            throw new InvalidMoveException("Invalid move: Start position must be on the board and not empty.");
+            throw new InvalidMoveException("Invalid move: END position must be on the board and not empty.");
         }
 
         //Is this move even a potentialMove given the pieceMoves
