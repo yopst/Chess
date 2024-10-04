@@ -313,7 +313,35 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (teamColor != turn) {
+            return false;
+        }
+        if (this.isInCheckmate(teamColor)) {
+            return false;
+        }
+        int numMovesAvailable = 0;
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                if (!board.emptySpaceOnBoard(pos) &&
+                        board.getPiece(pos).getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = board.getPiece(pos).pieceMoves(board,pos);
+                    numMovesAvailable += moves.size();
+                    for (ChessMove move: moves) {
+                        try {
+                            ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
+                            this.makeMove(move);
+                            this.undoMove();
+                            board.addPiece(move.getEndPosition(),capturedPiece);
+                            return false;
+                        } catch (InvalidMoveException e) {
+                            numMovesAvailable--;
+                        }
+                    }
+                }
+            }
+        }
+        return numMovesAvailable == 0;
     }
 
     /**
