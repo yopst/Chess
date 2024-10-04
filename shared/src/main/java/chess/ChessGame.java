@@ -1,5 +1,6 @@
 package chess;
 
+import javax.swing.text.Position;
 import java.util.Collection;
 
 /**
@@ -80,8 +81,78 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = board.whereIsTheKing(teamColor);
+        //for each pieceType, determine if valid moves at positions of opponent piece of pieceType are null or there
+        //Pawn attack (attack moves different from valid moves)
+        ChessPosition diagLeft;
+        ChessPosition diagRight;
+        if (teamColor == TeamColor.BLACK) {
+            diagLeft = new ChessPosition(kingPosition.getRow()-1, kingPosition.getColumn()-1);
+            diagRight = new ChessPosition(kingPosition.getRow()-1, kingPosition.getColumn()+1);
+        }
+        else {
+            diagLeft = new ChessPosition(kingPosition.getRow()+1, kingPosition.getColumn()-1);
+            diagRight = new ChessPosition(kingPosition.getRow()+1, kingPosition.getColumn()+1);
+        }
+        if (board.onBoard(diagLeft) && !board.emptySpaceOnBoard(diagLeft)) {
+            if (board.getPiece(diagLeft).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    board.getPiece(diagLeft).getTeamColor() != teamColor) {
+                return true;
+            }
+        }
+        if (board.onBoard(diagRight) && !board.emptySpaceOnBoard(diagRight)) {
+            if (board.getPiece(diagRight).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    board.getPiece(diagRight).getTeamColor() != teamColor) {
+                return true;
+            }
+        }
 
-        throw new RuntimeException("Not implemented");
+        // Imagine if there was a piece of pieceType at the kings position,
+        // if they could attack a piece of the opponent of the same type then the king is inCheck
+        //Knight
+        ChessPiece kingKnight = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+        Collection<ChessMove> knightMoves = kingKnight.pieceMoves(board, kingPosition);
+        for (ChessMove move: knightMoves) {
+            if (!board.emptySpaceOnBoard(move.getEndPosition()) &&
+                    board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                return true;
+            }
+        }
+
+
+        //Rook
+        ChessPiece kingRook = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+        Collection<ChessMove> rookMoves = kingRook.pieceMoves(board,kingPosition);
+        for (ChessMove move: rookMoves) {
+            if (!board.emptySpaceOnBoard(move.getEndPosition()) &&
+                    (board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.ROOK ||
+                            board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.QUEEN)) {
+                return true;
+            }
+        }
+
+        //Bishop
+        ChessPiece kingBishop = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+        Collection<ChessMove> bishopMoves = kingBishop.pieceMoves(board,kingPosition);
+        for (ChessMove move: bishopMoves) {
+            if (!board.emptySpaceOnBoard(move.getEndPosition()) &&
+                    (board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.BISHOP ||
+                            board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.QUEEN)) {
+                return true;
+            }
+        }
+
+        //King
+        ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
+        Collection<ChessMove> kingMoves = king.pieceMoves(board,kingPosition);
+        for (ChessMove move: kingMoves) {
+            if (!board.emptySpaceOnBoard(move.getEndPosition()) &&
+                    board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
