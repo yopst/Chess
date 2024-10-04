@@ -1,6 +1,7 @@
 package chess;
 
 import javax.swing.text.Position;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -76,7 +77,6 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-
         return turn;
     }
 
@@ -105,7 +105,30 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> potentialMoves = board.getPiece(startPosition).pieceMoves(board,startPosition);
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        //If it were your turn
+        boolean changedTeams = false;
+        if (board.getPiece(startPosition).getTeamColor() != turn) {
+            this.changeTurns();
+            changedTeams = true;
+        }
+        for (ChessMove move: potentialMoves) {
+            try {
+                ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
+                this.makeMove(move);
+                this.undoMove();
+                board.addPiece(move.getEndPosition(),capturedPiece);
+                validMoves.add(move);
+            } catch (InvalidMoveException e) {
+                //doesn't add the move if exception thrown
+            }
+        }
+        if (changedTeams) {
+            //change back
+            this.changeTurns();
+        }
+        return validMoves;
     }
 
     /**
