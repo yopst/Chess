@@ -28,6 +28,50 @@ public class ChessGame {
         }
     }
 
+    //doesn't check for validmoves exceptions
+    //doesn't set last move
+    private void undoMove() {
+        ChessMove reverseMove = board.getLastMove().reverseMove();
+        ChessPosition start = reverseMove.getStartPosition();
+        ChessPosition end = reverseMove.getEndPosition();
+        ChessPiece piece = board.getPiece(start);
+        board.addPiece(end,piece);
+        board.removePiece(start);
+        this.changeTurns();
+    }
+
+    public ChessPiece promotePiece(ChessMove move) {
+        if (move.getPromotionPiece() != null) {
+            ChessPiece newPiece;
+            TeamColor pieceColor = turn;
+            ChessPiece.PieceType type = move.getPromotionPiece();
+            switch (type) {
+                case PAWN:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN);
+                    break;
+                case ROOK:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.ROOK);
+                    break;
+                case BISHOP:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.BISHOP);
+                    break;
+                case KNIGHT:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.KNIGHT);
+                    break;
+                case QUEEN:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.QUEEN);
+                    break;
+                case KING:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.KING);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported piece type: " + type);
+            }
+            return newPiece;
+        }
+        return null;
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -71,7 +115,56 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece piece = board.getPiece(start);
+        if (piece.getTeamColor() != turn) {
+            throw new InvalidMoveException("Invalid move: The piece being moved is not of the teamcolor who's turn it is.");
+        }
+        if (!board.onBoard(start) || board.emptySpaceOnBoard(start)) {
+            throw new InvalidMoveException("Invalid move: Start position must be on the board and not empty.");
+        }
+        if (!board.onBoard(end)) {
+            throw new InvalidMoveException("Invalid move: Start position must be on the board and not empty.");
+        }
+
+        //Is this move even a potentialMove given the pieceMoves
+        Collection<ChessMove> moves = board.getPiece(move.getStartPosition()).pieceMoves(board,move.getStartPosition());
+        if (moves.contains(move)) {
+            if (board.whereIsTheKing(turn) != null) {
+                //boolean wasInCheck = isInCheck(turn);
+                ChessPiece capturedPiece = board.getPiece(end);
+                if (this.promotePiece(move) != null) {
+                    board.addPiece(end,this.promotePiece(move));
+                }
+                else {
+                    board.addPiece(end,piece);
+                }
+                board.removePiece(start);
+                board.setLastMove(move);
+                if (isInCheck(turn) /*&& wasInCheck*/) {
+                    this.undoMove();
+                    board.addPiece(end,capturedPiece);
+                    this.changeTurns();
+                    throw new InvalidMoveException("Invalid Move: your King is in check by making this move.");
+                }
+            }
+            else { //some tests require making moves without a king
+
+                if (this.promotePiece(move) != null) {
+                    board.addPiece(end,this.promotePiece(move));
+                }
+                else {
+                    board.addPiece(end,piece);
+                }
+                board.removePiece(start);
+                board.setLastMove(move);
+            }
+            this.changeTurns();
+        }
+        else {
+            throw new InvalidMoveException("Invalid move: The piece at start position cannot be moved in this way.");
+        }
     }
 
     /**
@@ -162,7 +255,28 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+
+        //For every piece of your team, try to make a
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                if (!board.emptySpaceOnBoard(pos) &&
+                        board.getPiece(pos).getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = board.getPiece(pos).pieceMoves(board,pos);
+                    for (ChessMove move: moves) {
+                        try {
+                            this.makeMove(move);
+                            this.undoMove();
+                            return false;
+                        } catch (InvalidMoveException e) { }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -182,7 +296,6 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-
         this.board = board;
     }
 
@@ -192,7 +305,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-
         return board;
     }
 }

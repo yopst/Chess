@@ -26,6 +26,11 @@ public class ChessMove {
         promotionType = promotionPiece;
     }
 
+    public ChessMove reverseMove() {
+        ChessMove undo = new ChessMove(end,start);
+        return undo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
