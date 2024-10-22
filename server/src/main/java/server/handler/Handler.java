@@ -1,11 +1,13 @@
 package server.handler;
 
+import server.exception.EndpointException;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 import com.google.gson.Gson;
 
 public abstract class Handler<T, R> implements Route {
+    //R to denote Generic Response Type
     private final Gson gson = new Gson();
 
     protected record ErrorMessage(String message) {}
@@ -21,28 +23,31 @@ public abstract class Handler<T, R> implements Route {
         return gson.toJson(responseObj);
     }
 
-    private void formatSuccess(Response response, R success) {
-        response.status(200);
-        response.body(serialize(success));
-    }
-
-    private void formatError(Response response, ErrorResponse error) {
-        response.status(error.status());
-        response.body(serialize(error.message()));
+    private void sendError(Response response, int status, String message) {
+        ErrorResponse errorResponse = new ErrorResponse(status, new ErrorMessage(message));
+        response.status(status);
+        response.header("Content-Type", "application/json");  // Set content type to JSON
+        response.body(gson.toJson(errorResponse));  // Serialize error response
     }
 
     @Override
-    public Object handle(Request request, Response response) {
+    public Response handle(Request request, Response response) {
         try {
             T requestObj = deserialize(request, getRequestClassType());
             R successResponse = performRequest(requestObj);
-            formatSuccess(response, successResponse);
-            return response.body();  // Return the response body for the Spark route
+            //successfully performed request
+            response.status(200);
+            response.header("Content-Type", "application/json");  // Set content type to JSON
+            response.body(serialize(successResponse));
+            return response;  // Return the entire response
+        } catch (EndpointException e) {
+            // Handle specific endpoint exceptions
+            sendError(response, e.getErrorCode(), e.getMessage());
+            return response;
         } catch (Exception e) {
-            // Here, you need a way to obtain an error code; modify as needed
-            ErrorResponse error = new ErrorResponse(500, new ErrorMessage(e.getMessage()));
-            formatError(response, error);
-            return response.body(); // Return the response body for the Spark route
+            // Handle general exceptions
+            sendError(response, 500, e.getMessage());
+            return response;
         }
     }
 
