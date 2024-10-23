@@ -1,6 +1,7 @@
 package server;
 
 import server.handler.LoginHandler;
+import server.handler.LogoutHandler;
 import server.handler.RegisterHandler;
 import spark.*;
 

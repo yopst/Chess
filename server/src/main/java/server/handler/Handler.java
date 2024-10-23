@@ -13,8 +13,11 @@ public abstract class Handler<T, R> implements Route {
     protected record ErrorMessage(String message) {}
     protected record ErrorResponse(int status, ErrorMessage message) {}
 
+    protected String authToken;
+
     protected T deserialize(Request httpReq, Class<T> clazz) {
         // Use Gson to deserialize the JSON request body into the specified class type
+        authToken = httpReq.headers("authorization");
         return gson.fromJson(httpReq.body(), clazz);
     }
 
