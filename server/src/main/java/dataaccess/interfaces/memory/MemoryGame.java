@@ -4,37 +4,34 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.GameDAO;
 import model.GameData;
+import model.UserData;
 
 import java.util.*;
 
 public class MemoryGame implements GameDAO {
-    MemoryDatabase db;
-
-    public MemoryGame(MemoryDatabase mdb) {
-        db = mdb;
-    }
+    private static final HashMap<Integer, GameData> games = new HashMap<>();
     @Override
     public int createGame(String gameName) throws DataAccessException {
-        int gameID = db.numGames() + 1;
+        int gameID = games.size() + 1;
         GameData gameData = new GameData(gameID, "","", gameName, new ChessGame());
-        db.game.put(gameID, gameData);
-        return db.numGames();
+        games.put(gameID, gameData);
+        return gameID;
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        return db.game.get(gameID);
+        return games.get(gameID);
     }
 
     @Override
     public void deleteGame(int gameID) throws DataAccessException {
         if (getGame(gameID) == null) throw new DataAccessException("no such game to delete");
-        db.game.remove(gameID);
+        games.remove(gameID);
     }
 
     @Override
     public void updateGame(int gameID, String username, ChessGame.TeamColor playerColor) throws DataAccessException {
-        GameData currentGameData = db.game.get(gameID);
+        GameData currentGameData = games.get(gameID);
         if (currentGameData == null) throw new DataAccessException("no such game to update");
         GameData newGameData;
         if (playerColor == ChessGame.TeamColor.WHITE) {
@@ -45,16 +42,16 @@ public class MemoryGame implements GameDAO {
             newGameData = new GameData(gameID, currentGameData.whiteUsername(),
                     username, currentGameData.gameName(), currentGameData.game());
         }
-        db.game.put(gameID, newGameData);
+        games.put(gameID, newGameData);
     }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return new ArrayList<>(db.game.values());
+        return new ArrayList<>(games.values());
     }
 
     @Override
     public void clear() throws DataAccessException {
-        db.game.clear();
+        games.clear();
     }
 }

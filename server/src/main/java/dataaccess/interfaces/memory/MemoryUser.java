@@ -4,20 +4,19 @@ import dataaccess.DataAccessException;
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
 
-public class MemoryUser implements UserDAO {
-    MemoryDatabase db;
+import java.util.HashMap;
 
-    public MemoryUser(MemoryDatabase mdb) {
-        db = mdb;
-    }
+public class MemoryUser implements UserDAO {
+    private static final HashMap<String, UserData> users = new HashMap<>();
+
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-        db.user.put(userData.username(), userData);
+        users.put(userData.username(), userData);
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return db.user.get(username);
+        return users.get(username);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class MemoryUser implements UserDAO {
         if (getUser(username) == null) {
             throw new DataAccessException("Username not found in database to remove.");
         }
-        db.user.remove(username);
+        users.remove(username);
     }
 
     @Override
@@ -33,11 +32,11 @@ public class MemoryUser implements UserDAO {
         if (getUser(userData.username()) == null) {
             throw new DataAccessException("Username from data not found in database. Create a new user instead.");
         }
-        db.user.put(userData.username(), userData);
+        users.put(userData.username(), userData);
     }
 
     @Override
     public void clear() throws DataAccessException {
-        db.user.clear();
+        users.clear();
     }
 }
