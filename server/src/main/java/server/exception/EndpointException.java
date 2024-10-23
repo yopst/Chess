@@ -1,6 +1,6 @@
 package server.exception;
 
-public class EndpointException extends Exception{
+public class EndpointException extends Exception {
     private final int errorCode;
 
     // Constructor that takes a message and an error code
