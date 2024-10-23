@@ -22,11 +22,17 @@ public class MemoryUser implements UserDAO {
 
     @Override
     public void deleteUser(String username) throws DataAccessException {
+        if (getUser(username) == null) {
+            throw new DataAccessException("Username not found in database to remove.");
+        }
         db.user.remove(username);
     }
 
     @Override
     public void updateUser(UserData userData) throws DataAccessException {
+        if (getUser(userData.username()) == null) {
+            throw new DataAccessException("Username from data not found in database. Create a new user instead.");
+        }
         db.user.put(userData.username(), userData);
     }
 

@@ -28,12 +28,14 @@ public class MemoryGame implements GameDAO {
 
     @Override
     public void deleteGame(int gameID) throws DataAccessException {
+        if (getGame(gameID) == null) throw new DataAccessException("no such game to delete");
         db.game.remove(gameID);
     }
 
     @Override
     public void updateGame(int gameID, String username, ChessGame.TeamColor playerColor) throws DataAccessException {
         GameData currentGameData = db.game.get(gameID);
+        if (currentGameData == null) throw new DataAccessException("no such game to update");
         GameData newGameData;
         if (playerColor == ChessGame.TeamColor.WHITE) {
             newGameData = new GameData(gameID, username,
