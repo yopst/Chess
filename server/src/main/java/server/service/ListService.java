@@ -2,23 +2,29 @@ package server.service;
 
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;
+import dataaccess.interfaces.GameDAO;
 import dataaccess.interfaces.memory.MemoryAuth;
-import response.LogoutResponse;
+import dataaccess.interfaces.memory.MemoryGame;
+import model.AuthData;
+import model.GameData;
+import request.ListRequest;
+import response.ListResponse;
 import server.exception.EndpointException;
 import server.exception.UnauthorizedException;
 
-public class LogoutService {
+import java.util.Collection;
+
+public class ListService {
+    GameDAO gamesDB = new MemoryGame();
     AuthDAO auth = new MemoryAuth();
 
-    public LogoutResponse logout(String authToken) throws EndpointException {
+    public ListResponse listGames(String authToken) throws EndpointException {
         try {
-            // could expand to have a user associated with the request that can be checked against the database
-            // to throw an unauthorized exception if they don't match
             if (auth.getAuth(authToken) == null) {
                 throw new UnauthorizedException("unauthorized");
             }
-            auth.deleteAuth(authToken); //throws data access if authToken not mapped
-            return new LogoutResponse();
+            Collection<GameData> games = gamesDB.listGames();
+            return new ListResponse(games);
         }
         catch (DataAccessException e) {
             throw new EndpointException(e.getMessage(), 500);
