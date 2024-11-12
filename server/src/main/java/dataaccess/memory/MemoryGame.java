@@ -1,4 +1,4 @@
-package dataaccess.interfaces.memory;
+package dataaccess.memory;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;

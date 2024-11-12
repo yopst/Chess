@@ -1,14 +1,19 @@
 package server.service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
-import dataaccess.interfaces.memory.MemoryAuth;
 import response.LogoutResponse;
 import server.exception.EndpointException;
 import server.exception.UnauthorizedException;
 
 public class LogoutService {
-    AuthDAO auth = new MemoryAuth();
+    private final AuthDAO auth;
+
+    public LogoutService() {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        auth = dbManager.getAuth();
+    }
 
     public LogoutResponse logout(String authToken) throws EndpointException {
         try {

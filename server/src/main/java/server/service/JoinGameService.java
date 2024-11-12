@@ -2,12 +2,9 @@ package server.service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
-import dataaccess.interfaces.UserDAO;
-import dataaccess.interfaces.memory.MemoryAuth;
-import dataaccess.interfaces.memory.MemoryGame;
-import dataaccess.interfaces.memory.MemoryUser;
 import model.GameData;
 import request.JoinGameRequest;
 import response.JoinGameResponse;
@@ -16,9 +13,14 @@ import server.exception.EndpointException;
 import server.exception.UnauthorizedException;
 
 public class JoinGameService {
-    GameDAO games = new MemoryGame();
-    AuthDAO auth = new MemoryAuth();
-    UserDAO user = new MemoryUser();
+    private final GameDAO games;
+    private final AuthDAO auth;
+
+    public JoinGameService() {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        games = dbManager.getGames();
+        auth = dbManager.getAuth();
+    }
 
     private Boolean canJoin(GameData gameData, ChessGame.TeamColor teamColor) {
         boolean alreadyWhitePlayer = gameData.whiteUsername() != null;
@@ -51,6 +53,4 @@ public class JoinGameService {
             throw new EndpointException(e.getMessage(), 500);
         }
     }
-
-
 }

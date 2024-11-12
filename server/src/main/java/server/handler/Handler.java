@@ -34,15 +34,16 @@ public abstract class Handler<T, R> implements Route {
     }
 
     @Override
-    public Response handle(Request request, Response response) {
+    public Object handle(Request request, Response response) {
         try {
             T requestObj = deserialize(request, getRequestClassType());
             R successResponse = performRequest(requestObj);
             //successfully performed request
             response.status(200);
             response.header("Content-Type", "application/json");  // Set content type to JSON
-            response.body(serialize(successResponse));
-            return response;  // Return the entire response
+            String serializedResponse = serialize(successResponse);
+            response.body(serializedResponse);
+            return serializedResponse;  // Return the entire response
         } catch (EndpointException e) {
             // Handle specific endpoint exceptions
             sendError(response, e.getErrorCode(), e.getMessage());

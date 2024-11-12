@@ -1,4 +1,4 @@
-package dataaccess.interfaces.memory;
+package dataaccess.memory;
 
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;

@@ -1,10 +1,9 @@
 package server.service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.UserDAO;
-import dataaccess.interfaces.memory.MemoryAuth;
-import dataaccess.interfaces.memory.MemoryUser;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
@@ -14,8 +13,14 @@ import server.exception.EndpointException;
 import server.exception.UnauthorizedException;
 
 public class LoginService {
-    AuthDAO auth = new MemoryAuth();
-    UserDAO user = new MemoryUser();
+    private final AuthDAO auth;
+    private final UserDAO users;
+
+    public LoginService() {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        auth = dbManager.getAuth();
+        users = dbManager.getUsers();
+    }
 
     public LoginResponse login(LoginRequest loginRequest) throws EndpointException {
         try {
@@ -23,7 +28,7 @@ public class LoginService {
                     loginRequest.password() == null) {
                 throw new BadRequestException("bad request");
             }
-            UserData userData = user.getUser(loginRequest.username());
+            UserData userData = users.getUser(loginRequest.username());
             if (userData == null || !loginRequest.password().equals(userData.password())) {
                 throw new UnauthorizedException("unauthorized");
             }

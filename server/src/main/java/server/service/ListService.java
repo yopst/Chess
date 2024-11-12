@@ -1,10 +1,10 @@
 package server.service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
-import dataaccess.interfaces.memory.MemoryAuth;
-import dataaccess.interfaces.memory.MemoryGame;
+import dataaccess.interfaces.UserDAO;
 import model.GameData;
 import response.ListResponse;
 import server.exception.EndpointException;
@@ -13,9 +13,14 @@ import server.exception.UnauthorizedException;
 import java.util.Collection;
 
 public class ListService {
-    GameDAO gamesDB = new MemoryGame();
-    AuthDAO auth = new MemoryAuth();
+    private final GameDAO gamesDB;
+    private final AuthDAO auth;
 
+    public ListService() {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        gamesDB = dbManager.getGames();
+        auth = dbManager.getAuth();
+    }
     public ListResponse listGames(String authToken) throws EndpointException {
         try {
             if (auth.getAuth(authToken) == null) {
