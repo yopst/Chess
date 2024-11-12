@@ -1,8 +1,8 @@
 package server.service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.UserDAO;
-import dataaccess.interfaces.memory.MemoryUser;
 import model.UserData;
 import request.LoginRequest;
 import request.RegisterRequest;
@@ -12,8 +12,14 @@ import server.exception.EndpointException;
 import server.exception.UserAlreadyExistsException;
 
 public class RegisterService {
-    private final UserDAO user = new MemoryUser();
+    private final UserDAO users;
     private final LoginService loginService = new LoginService();
+
+    public RegisterService() {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        users = dbManager.getUsers();
+    }
+
 
     public RegisterResponse register(RegisterRequest registerRequest) throws EndpointException {
         try {
@@ -22,9 +28,9 @@ public class RegisterService {
                     registerRequest.email() == null) {
                 throw new BadRequestException("bad request");
             }
-            if (user.getUser(registerRequest.username()) != null)
+            if (users.getUser(registerRequest.username()) != null)
                 throw new UserAlreadyExistsException("already taken");
-            user.createUser(new UserData(
+            users.createUser(new UserData(
                     registerRequest.username(),
                     registerRequest.password(),
                     registerRequest.email()));

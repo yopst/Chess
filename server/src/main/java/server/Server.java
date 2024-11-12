@@ -21,9 +21,6 @@ public class Server {
         Spark.put("/game", new JoinGameHandler());
         Spark.delete("/db", new ClearHandler());
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-
         Spark.awaitInitialization();
         return Spark.port();
     }
