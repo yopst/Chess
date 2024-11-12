@@ -13,6 +13,6 @@ public class ListHandler extends Handler<ListRequest, ListResponse> implements R
 
     @Override
     protected Class<ListRequest> getRequestClassType() {
-        return null;
+        return ListRequest.class;
     }
 }
