@@ -9,9 +9,7 @@ import com.google.gson.Gson;
 public abstract class Handler<T, R> implements Route {
     //R to denote Generic Response Type
     private final Gson gson = new Gson();
-
-    protected record ErrorMessage(String message) {}
-    protected record ErrorResponse(int status, ErrorMessage message) {}
+    protected record ErrorResponse(int status, String message) {}
 
     protected String authToken;
 
@@ -26,11 +24,13 @@ public abstract class Handler<T, R> implements Route {
         return gson.toJson(responseObj);
     }
 
-    private void sendError(Response response, int status, String message) {
-        ErrorResponse errorResponse = new ErrorResponse(status, new ErrorMessage(message));
+    private Object sendError(Response response, int status, String message) {
+        ErrorResponse errorResponse = new ErrorResponse(status, "Error: " + message);
         response.status(status);
         response.header("Content-Type", "application/json");  // Set content type to JSON
-        response.body(gson.toJson(errorResponse));  // Serialize error response
+        String serializedResponse = gson.toJson(errorResponse);
+        response.body(serializedResponse);  // Serialize error response
+        return serializedResponse;
     }
 
     @Override
@@ -46,12 +46,10 @@ public abstract class Handler<T, R> implements Route {
             return serializedResponse;  // Return the entire response
         } catch (EndpointException e) {
             // Handle specific endpoint exceptions
-            sendError(response, e.getErrorCode(), e.getMessage());
-            return response;
+            return sendError(response, e.getErrorCode(), e.getMessage());
         } catch (Exception e) {
             // Handle general exceptions
-            sendError(response, 500, e.getMessage());
-            return response;
+            return sendError(response, 500, e.getMessage());
         }
     }
 

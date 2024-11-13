@@ -26,7 +26,7 @@ public class ListService {
             if (auth.getAuth(authToken) == null) {
                 throw new UnauthorizedException("unauthorized");
             }
-            Collection<GameData> games = gamesDB.listGames();
+            Collection<model.GameDataListItem> games = gamesDB.listGames();
             return new ListResponse(games);
         }
         catch (DataAccessException e) {

@@ -15,6 +15,6 @@ public class JoinGameHandler extends Handler<JoinGameRequest, JoinGameResponse> 
 
     @Override
     protected Class<JoinGameRequest> getRequestClassType() {
-        return null;
+        return JoinGameRequest.class;
     }
 }

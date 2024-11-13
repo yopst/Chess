@@ -3,7 +3,6 @@ package dataaccess.memory;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;
 import model.AuthData;
-import model.GameData;
 
 import java.util.HashMap;
 
@@ -11,9 +10,10 @@ public class MemoryAuth implements AuthDAO {
     private static final HashMap<String, AuthData> auths = new HashMap<>();
 
     @Override
-    public void createAuth(String username) throws DataAccessException {
+    public AuthData createAuth(String username) throws DataAccessException {
         AuthData authData = AuthData.createWithRandomToken(username);
         auths.put(authData.authToken(), authData);
+        return authData;
     }
 
     @Override

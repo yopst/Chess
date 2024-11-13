@@ -36,15 +36,17 @@ public class JoinGameService {
             }
 
             String username = auth.getAuth(authToken).username();
-            if (username == null) throw new BadRequestException("bad request");
+            ChessGame.TeamColor playerColor = joinRequest.playerColor();
+            if (username == null || playerColor == null) throw new BadRequestException("bad request");
 
             GameData gameData = games.getGame(joinRequest.gameID());
+            if (gameData == null) throw new BadRequestException("bad request");
 
-            if (canJoin(gameData, joinRequest.teamColor())) {
-                games.updateGame(gameData.GameID(),username,joinRequest.teamColor());
+            if (canJoin(gameData, joinRequest.playerColor())) {
+                games.updateGame(gameData.gameID(),username,joinRequest.playerColor());
             }
             else {
-                throw new EndpointException("team color already taken", 500);
+                throw new EndpointException("already taken", 403);
             }
 
             return new JoinGameResponse();

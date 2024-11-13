@@ -4,16 +4,17 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.GameDAO;
 import model.GameData;
-import model.UserData;
 
 import java.util.*;
 
 public class MemoryGame implements GameDAO {
     private static final HashMap<Integer, GameData> games = new HashMap<>();
+    private record GameDataListItem(int gameID, String whiteUsername, String blackUsername, String gameName){};
+
     @Override
     public int createGame(String gameName) throws DataAccessException {
         int gameID = games.size() + 1;
-        GameData gameData = new GameData(gameID, "","", gameName, new ChessGame());
+        GameData gameData = new GameData(gameID, null,null, gameName, new ChessGame());
         games.put(gameID, gameData);
         return gameID;
     }
@@ -46,8 +47,12 @@ public class MemoryGame implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
-        return new ArrayList<>(games.values());
+    public Collection<model.GameDataListItem> listGames() throws DataAccessException {
+        ArrayList<model.GameDataListItem> list = new ArrayList<>();
+        for (GameData game : games.values()) {
+            list.add(new model.GameDataListItem(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+        }
+        return list;
     }
 
     @Override

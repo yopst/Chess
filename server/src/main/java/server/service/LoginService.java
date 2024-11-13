@@ -32,8 +32,7 @@ public class LoginService {
             if (userData == null || !loginRequest.password().equals(userData.password())) {
                 throw new UnauthorizedException("unauthorized");
             }
-            AuthData authData = AuthData.createWithRandomToken(userData.username());
-            auth.createAuth(userData.username());
+            AuthData authData = auth.createAuth(userData.username());
             return new LoginResponse(userData.username(), authData.authToken());
         }
         catch (DataAccessException e) {

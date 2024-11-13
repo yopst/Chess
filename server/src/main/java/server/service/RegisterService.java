@@ -28,8 +28,8 @@ public class RegisterService {
                     registerRequest.email() == null) {
                 throw new BadRequestException("bad request");
             }
-            if (users.getUser(registerRequest.username()) != null)
-                throw new UserAlreadyExistsException("already taken");
+            UserData userData = users.getUser((registerRequest.username()));
+            if (users.getUser(registerRequest.username()) != null) throw new UserAlreadyExistsException("already taken");
             users.createUser(new UserData(
                     registerRequest.username(),
                     registerRequest.password(),
@@ -41,7 +41,7 @@ public class RegisterService {
 
         //login after successful registration (login creates and adds an AuthData entry)
         String authToken = loginService.login(
-                new LoginRequest(registerRequest.username(),registerRequest.email())).authToken();
+                new LoginRequest(registerRequest.username(),registerRequest.password())).authToken();
         return new RegisterResponse(registerRequest.username(), authToken);
     }
 }

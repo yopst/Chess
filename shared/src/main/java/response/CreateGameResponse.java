@@ -1,3 +1,3 @@
 package response;
 
-public record CreateGameResponse(int gameId) {}
+public record CreateGameResponse(int gameID) {}
