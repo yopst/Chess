@@ -29,7 +29,9 @@ public class RegisterService {
                 throw new BadRequestException("bad request");
             }
             UserData userData = users.getUser((registerRequest.username()));
-            if (users.getUser(registerRequest.username()) != null) throw new UserAlreadyExistsException("already taken");
+            if (users.getUser(registerRequest.username()) != null) {
+                throw new UserAlreadyExistsException("already taken");
+            }
             users.createUser(new UserData(
                     registerRequest.username(),
                     registerRequest.password(),

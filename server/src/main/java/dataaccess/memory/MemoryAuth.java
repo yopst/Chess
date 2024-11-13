@@ -7,28 +7,30 @@ import model.AuthData;
 import java.util.HashMap;
 
 public class MemoryAuth implements AuthDAO {
-    private static final HashMap<String, AuthData> auths = new HashMap<>();
+    private static final HashMap<String, AuthData> AUTHS = new HashMap<>();
 
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
         AuthData authData = AuthData.createWithRandomToken(username);
-        auths.put(authData.authToken(), authData);
+        AUTHS.put(authData.authToken(), authData);
         return authData;
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        return auths.get(authToken);
+        return AUTHS.get(authToken);
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        if (getAuth(authToken) == null) throw new DataAccessException("no such authData to remove");
-        auths.remove(authToken);
+        if (getAuth(authToken) == null) {
+            throw new DataAccessException("no such authData to remove");
+        }
+        AUTHS.remove(authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
-        auths.clear();
+        AUTHS.clear();
     }
 }

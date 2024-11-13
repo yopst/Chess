@@ -4,8 +4,6 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
-import dataaccess.interfaces.UserDAO;
-import model.GameData;
 import response.ListResponse;
 import server.exception.EndpointException;
 import server.exception.UnauthorizedException;

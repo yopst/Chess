@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -13,14 +12,14 @@ public class ChessBoard {
     private ChessPiece[][] chessBoard  = new ChessPiece[8][8];
     private ChessMove lastMove;
 
-    public ChessBoard(ChessBoard board_) {
+    public ChessBoard(ChessBoard board) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
-                this.addPiece(pos,board_.getPiece(pos));
+                this.addPiece(pos, board.getPiece(pos));
             }
         }
-        lastMove = board_.getLastMove();
+        lastMove = board.getLastMove();
     }
     public ChessBoard() {}
 
