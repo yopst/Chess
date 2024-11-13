@@ -66,10 +66,13 @@ public class ServiceClassTests {
     @Order(2)
     @DisplayName("Register Service")
     public void positiveRegisterTest() throws Exception {
-        RegisterRequest positiveRequest = new RegisterRequest(FIRST_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
-        RegisterRequest positiveRequest2 = new RegisterRequest(SECOND_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
+        RegisterRequest positiveRequest =
+                new RegisterRequest(FIRST_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
+        RegisterRequest positiveRequest2 =
+                new RegisterRequest(SECOND_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
 
-        RegisterResponse actualResponse = Assertions.assertDoesNotThrow(() -> registerService.register(positiveRequest));
+        RegisterResponse actualResponse =
+                Assertions.assertDoesNotThrow(() -> registerService.register(positiveRequest));
         authToken = actualResponse.authToken();
         authToken2 = Assertions.assertDoesNotThrow(() -> registerService.register(positiveRequest2).authToken());
 
@@ -77,9 +80,10 @@ public class ServiceClassTests {
     }
     @Test
     @Order(2)
-    @DisplayName("Register Service")
+    @DisplayName("Negative Register Service")
     public void negativeRegisterTest() throws Exception {
-        RegisterRequest negativeRequest = new RegisterRequest(SECOND_USERNAME,"new_password", "su@email.com");
+        RegisterRequest negativeRequest =
+                new RegisterRequest(SECOND_USERNAME,"new_password", "su@email.com");
         Assertions.assertThrows(EndpointException.class, () -> registerService.register(negativeRequest));
     }
 
@@ -92,7 +96,8 @@ public class ServiceClassTests {
         Assertions.assertEquals(1, createGameService.createGame(positiveRequest,authToken).gameID());
 
         //can have multiple games of the same name
-        int gameID = Assertions.assertDoesNotThrow(() -> createGameService.createGame(positiveRequest,authToken).gameID());
+        int gameID = Assertions.assertDoesNotThrow(() ->
+                createGameService.createGame(positiveRequest,authToken).gameID());
         Assertions.assertNotEquals(1,gameID);
 
         clearDB();
@@ -102,7 +107,7 @@ public class ServiceClassTests {
 
     @Test
     @Order(3)
-    @DisplayName("Create Service")
+    @DisplayName("Negative Create Service")
     public void negativeCreateTest() throws Exception {
         CreateGameRequest positiveRequest = new CreateGameRequest(FIRST_GAME_NAME);
         Assertions.assertThrows(EndpointException.class, () -> createGameService.createGame(positiveRequest,BAD_AUTH));
@@ -112,7 +117,8 @@ public class ServiceClassTests {
     @Order(4)
     @DisplayName("List Service")
     public void listTest() throws Exception {
-        GameDataListItem listItem = new GameDataListItem(1,null,null,FIRST_GAME_NAME);
+        GameDataListItem listItem =
+                new GameDataListItem(1,null,null,FIRST_GAME_NAME);
         Collection<GameDataListItem> list = new ArrayList<>();
         list.add(listItem);
         ListResponse positiveResponse = new ListResponse(list);
@@ -121,7 +127,7 @@ public class ServiceClassTests {
 
     @Test
     @Order(4)
-    @DisplayName("List Service")
+    @DisplayName("Negative List Service")
     public void negativeListTest() throws Exception {
         Assertions.assertThrows(EndpointException.class, () -> listService.listGames(BAD_AUTH));
     }
@@ -146,7 +152,7 @@ public class ServiceClassTests {
 
     @Test
     @Order(5)
-    @DisplayName("Join Service")
+    @DisplayName("Negative Join Service")
     public void negativeJoinTest() throws Exception {
         JoinGameRequest negativeRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, -1);
         JoinGameRequest negativeRequest2 = new JoinGameRequest(ChessGame.TeamColor.WHITE, 1);
@@ -164,7 +170,7 @@ public class ServiceClassTests {
     }
     @Test
     @Order(6)
-    @DisplayName("Logout Service")
+    @DisplayName("Negative Logout Service")
     public void negativeLogoutTest() throws Exception {
         //authToken deleted after logout
         Assertions.assertThrows(EndpointException.class, () -> logoutService.logout(authToken));
@@ -188,7 +194,7 @@ public class ServiceClassTests {
     }
     @Test
     @Order(7)
-    @DisplayName("Login Service")
+    @DisplayName("Negative Login Service")
     public void negativeLoginTest() throws Exception {
 
         Assertions.assertThrows(EndpointException.class,
