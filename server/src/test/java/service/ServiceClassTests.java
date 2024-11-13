@@ -65,16 +65,21 @@ public class ServiceClassTests {
     @Test
     @Order(2)
     @DisplayName("Register Service")
-    public void registerTest() throws Exception {
+    public void positiveRegisterTest() throws Exception {
         RegisterRequest positiveRequest = new RegisterRequest(FIRST_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
-        RegisterRequest positiveRequest2 = new RegisterRequest(SECOND_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com"); //represents a bad use of what is currently allowable
-        RegisterRequest negativeRequest = new RegisterRequest(SECOND_USERNAME,"new_password", "su@email.com");
+        RegisterRequest positiveRequest2 = new RegisterRequest(SECOND_USERNAME, SHARED_VALID_PASSWORD, "fu@email.com");
 
         RegisterResponse actualResponse = Assertions.assertDoesNotThrow(() -> registerService.register(positiveRequest));
         authToken = actualResponse.authToken();
         authToken2 = Assertions.assertDoesNotThrow(() -> registerService.register(positiveRequest2).authToken());
 
         Assertions.assertNotEquals(authToken, authToken2);
+    }
+    @Test
+    @Order(2)
+    @DisplayName("Register Service")
+    public void negativeRegisterTest() throws Exception {
+        RegisterRequest negativeRequest = new RegisterRequest(SECOND_USERNAME,"new_password", "su@email.com");
         Assertions.assertThrows(EndpointException.class, () -> registerService.register(negativeRequest));
     }
 
@@ -85,15 +90,22 @@ public class ServiceClassTests {
         CreateGameRequest positiveRequest = new CreateGameRequest(FIRST_GAME_NAME);
 
         Assertions.assertEquals(1, createGameService.createGame(positiveRequest,authToken).gameID());
-        Assertions.assertThrows(EndpointException.class, () -> createGameService.createGame(positiveRequest,BAD_AUTH));
 
         //can have multiple games of the same name
         int gameID = Assertions.assertDoesNotThrow(() -> createGameService.createGame(positiveRequest,authToken).gameID());
         Assertions.assertNotEquals(1,gameID);
 
         clearDB();
-        registerTest();
+        positiveRegisterTest();
         Assertions.assertEquals(1, createGameService.createGame(positiveRequest,authToken).gameID());
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("Create Service")
+    public void negativeCreateTest() throws Exception {
+        CreateGameRequest positiveRequest = new CreateGameRequest(FIRST_GAME_NAME);
+        Assertions.assertThrows(EndpointException.class, () -> createGameService.createGame(positiveRequest,BAD_AUTH));
     }
 
     @Test
@@ -105,6 +117,12 @@ public class ServiceClassTests {
         list.add(listItem);
         ListResponse positiveResponse = new ListResponse(list);
         Assertions.assertEquals(positiveResponse,listService.listGames(authToken));
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("List Service")
+    public void negativeListTest() throws Exception {
         Assertions.assertThrows(EndpointException.class, () -> listService.listGames(BAD_AUTH));
     }
 
@@ -119,12 +137,19 @@ public class ServiceClassTests {
 
         JoinGameRequest positiveRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE,1);
         JoinGameRequest positiveRequest2 = new JoinGameRequest(ChessGame.TeamColor.BLACK,1);
-        JoinGameRequest negativeRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, -1);
-        JoinGameRequest negativeRequest2 = new JoinGameRequest(ChessGame.TeamColor.WHITE, 1);
 
         Assertions.assertDoesNotThrow(() -> joinGameService.joinGame(positiveRequest,authToken));
         Assertions.assertDoesNotThrow(() -> joinGameService.joinGame(positiveRequest2,authToken2));
         Assertions.assertEquals(positiveListResponse,listService.listGames(authToken));
+
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Join Service")
+    public void negativeJoinTest() throws Exception {
+        JoinGameRequest negativeRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, -1);
+        JoinGameRequest negativeRequest2 = new JoinGameRequest(ChessGame.TeamColor.WHITE, 1);
 
         Assertions.assertThrows(EndpointException.class, () -> joinGameService.joinGame(negativeRequest, authToken));
         Assertions.assertThrows(EndpointException.class, () -> joinGameService.joinGame(negativeRequest2, authToken2));
@@ -136,9 +161,14 @@ public class ServiceClassTests {
     public void logoutTest() throws Exception {
         //first user logs out
         Assertions.assertDoesNotThrow(() -> logoutService.logout(authToken));
-        Assertions.assertThrows(EndpointException.class, () -> logoutService.logout(BAD_AUTH));
+    }
+    @Test
+    @Order(6)
+    @DisplayName("Logout Service")
+    public void negativeLogoutTest() throws Exception {
         //authToken deleted after logout
         Assertions.assertThrows(EndpointException.class, () -> logoutService.logout(authToken));
+        Assertions.assertThrows(EndpointException.class, () -> logoutService.logout(BAD_AUTH));
     }
 
     @Test
@@ -155,7 +185,17 @@ public class ServiceClassTests {
         Assertions.assertNotEquals(loginService.login(positiveRequest2).authToken(),
                 loginService.login(positiveRequest2).authToken());
 
+    }
+    @Test
+    @Order(7)
+    @DisplayName("Login Service")
+    public void negativeLoginTest() throws Exception {
+
         Assertions.assertThrows(EndpointException.class,
                 () -> loginService.login(new LoginRequest("new_user", SHARED_VALID_PASSWORD)));
+
+        Assertions.assertThrows(EndpointException.class,
+                () -> loginService.login(new LoginRequest(FIRST_USERNAME, "new_password")));
+
     }
 }
