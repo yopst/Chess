@@ -3,9 +3,15 @@ package repl;
 import webSocketMessages.Notification;
 import websocket.NotificationHandler;
 
-public class PostLoginRepl implements NotificationHandler {
-    @Override
-    public void notify(Notification notification) {
-        
+public class PostLoginRepl extends Repl implements NotificationHandler{
+    public String help() {
+        return """
+                - create <GAMENAME>
+                - join <ID>
+                - list
+                - logout
+                - quit
+                - help
+                """;
     }
 }
