@@ -1,3 +1,5 @@
+package client;
+
 import client.exceptions.ResponseException;
 import com.google.gson.Gson;
 import request.*;
@@ -72,6 +74,8 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
+        } catch (ResponseException e) {
+            throw e;
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
