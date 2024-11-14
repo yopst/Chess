@@ -26,7 +26,7 @@ public class LogoutService {
             return new LogoutResponse();
         }
         catch (DataAccessException e) {
-            throw new EndpointException(e.getMessage(), 500);
+            throw new EndpointException(e.getMessage(), 404);
         }
     }
 }

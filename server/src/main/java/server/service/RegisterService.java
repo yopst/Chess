@@ -38,7 +38,7 @@ public class RegisterService {
                     registerRequest.email()));
         }
         catch (DataAccessException e) {
-            throw new EndpointException(e.getMessage(), 500);
+            throw new EndpointException(e.getMessage(), 404);
         }
 
         //login after successful registration (login creates and adds an AuthData entry)

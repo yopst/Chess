@@ -29,7 +29,7 @@ public class CreateGameService {
             return new CreateGameResponse(gamesDB.createGame(createGameRequest.gameName()));
         }
         catch (DataAccessException e) {
-            throw new EndpointException(e.getMessage(), 500);
+            throw new EndpointException(e.getMessage(), 404);
         }
     }
 

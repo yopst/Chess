@@ -24,7 +24,7 @@ public class ClearService {
             users.clear();
         }
         catch (DataAccessException e) {
-            throw new EndpointException(e.getMessage(), 500);
+            throw new EndpointException(e.getMessage(), 404);
         }
         return new ClearResponse();
     }
