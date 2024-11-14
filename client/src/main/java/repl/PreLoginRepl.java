@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class PreLoginRepl implements NotificationHandler {
+public class PreLoginRepl extends Repl implements NotificationHandler {
     private final Client client;
 
     public PreLoginRepl(String serverUrl) {
@@ -16,18 +16,19 @@ public class PreLoginRepl implements NotificationHandler {
     }
 
     public void run() {
-        System.out.print("""
-                           ██████  ██   ██ ███████  ██████  ██████ \s
-                          ██       ██   ██ ██      ██      ██      \s
-                          ██       ███████ █████     █████  ██████ \s
-                          ██       ██   ██ ██            ██      ██\s
-                           ██████  ██   ██ ███████  ██████  ██████ \s
-                                                                   \s
-                                 ♚ || Sign in to start || ♔
-                        ____________________________________________
-                        """
+        System.out.print(
+        """
+        ___________________________________________\s
+           ██████  ██   ██ ███████  ██████  ██████ \s
+          ██       ██   ██ ██      ██      ██      \s
+          ██       ███████ █████     █████  ██████ \s
+          ██       ██   ██ ██            ██      ██\s
+           ██████  ██   ██ ███████  ██████  ██████ \s
+                                                   \s
+                 ♚ || Sign in to start || ♔        \s
+        ___________________________________________\s
+        """
         );
-        System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -47,9 +48,11 @@ public class PreLoginRepl implements NotificationHandler {
     }
     private void printPrompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+    }
 
     @Override
     public void notify(Notification notification) {
-
+        System.out.println(SET_BG_COLOR_RED + notification.message());
+        printPrompt();
     }
 }

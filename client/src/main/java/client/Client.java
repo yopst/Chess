@@ -19,7 +19,7 @@ public class Client {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "quit" -> quit(params);
+                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -31,21 +31,21 @@ public class Client {
         return null;
     }
 
-    public String login(String... params) throws ResponseException{
+    public String login(String... params) throws ResponseException {
         return null;
     }
 
-    public String quit(String... params) throws ResponseException{
+    public String quit(String... params) throws ResponseException {
         return null;
     }
 
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
-                    - register <username> <password> <email> - to create an account
+                    - register <username> <password> <email>
                     - signIn <username>  <password>
                     - quit
-                    - help - with possible commands
+                    - help
                     """;
         }
         else {
