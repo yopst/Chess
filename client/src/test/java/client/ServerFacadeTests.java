@@ -11,9 +11,6 @@ public class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade serverFacade;
-
-    private static String authToken;
-    private static String authToken2;
     private static Integer failureCode;
 
     private static final String BAD_AUTH = "evil Auth";
@@ -85,7 +82,6 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @Order(1)
     @DisplayName("Login")
     public void login() {
         //can login with registered user
@@ -93,6 +89,7 @@ public class ServerFacadeTests {
         LoginResponse response = exceptionWrapper
                 (request, serverFacade::login, TestType.POSITIVE);
         Assertions.assertInstanceOf(LoginResponse.class, response);
+        Assertions.assertEquals(serverFacade.authToken, response.authToken());
     }
 
     @Test
@@ -106,7 +103,6 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @Order(2)
     @DisplayName("Logout")
     public void logout() {
         //can logout with registered user
@@ -120,12 +116,44 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Negative Logout")
     public void negativeLogout() {
-        serverFacade.authToken = null;
+        serverFacade.authToken = BAD_AUTH;
         LogoutRequest request = new LogoutRequest();
         LogoutResponse response = exceptionWrapper
                 (request, serverFacade::logout, TestType.NEGATIVE);
         Assertions.assertNull(response);
         Assertions.assertEquals(401, failureCode);
+    }
+
+    @Test
+    @DisplayName("Register")
+    @Order(1)
+    public void register() {
+        RegisterRequest request =
+                new RegisterRequest(UNREGISTERED_USERNAME, SHARED_VALID_PASSWORD, "whatever@email.com");
+        RegisterResponse response = exceptionWrapper
+                (request, serverFacade::register, TestType.POSITIVE);
+        Assertions.assertInstanceOf(RegisterResponse.class, response);
+        Assertions.assertEquals(serverFacade.authToken,response.authToken());
+    }
+
+    @Test
+    @DisplayName("Negative Register")
+    public void negativeRegister() {
+        //cant register as same username as other user
+        RegisterRequest request =
+                new RegisterRequest(REGISTERED_USERNAME, SHARED_VALID_PASSWORD, "whatever@email.com");
+        RegisterResponse response = exceptionWrapper
+                (request, serverFacade::register, TestType.NEGATIVE);
+        Assertions.assertNull(response);
+        Assertions.assertEquals(403, failureCode);
+
+        //cant have null parameters
+        RegisterRequest request1 =
+                new RegisterRequest(UNREGISTERED_USERNAME, null, null);
+        RegisterResponse response1 = exceptionWrapper
+                (request1, serverFacade::register, TestType.NEGATIVE);
+        Assertions.assertNull(response1);
+        Assertions.assertEquals(400, failureCode);
     }
 
 }
