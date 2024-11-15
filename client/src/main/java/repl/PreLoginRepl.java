@@ -25,6 +25,10 @@ public class PreLoginRepl extends Repl implements NotificationHandler {
         super(serverUrl);
     }
 
+    public PreLoginRepl(Client client) {
+        super(client);
+    }
+
     public void run() {
         System.out.print(INTRO);
         super.run();
