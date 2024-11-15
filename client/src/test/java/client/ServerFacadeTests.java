@@ -1,10 +1,14 @@
 package client;
 
+import chess.ChessGame;
 import client.exceptions.ResponseException;
+import model.GameDataListItem;
 import org.junit.jupiter.api.*;
 import request.*;
 import response.*;
 import server.Server;
+
+import java.util.ArrayList;
 
 
 public class ServerFacadeTests {
@@ -12,14 +16,22 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade serverFacade;
     private static Integer failureCode;
+    private static GameDataListItem listItem;
+    private static Integer gameID;
 
     private static final String BAD_AUTH = "evil Auth";
     private static final String REGISTERED_USERNAME = "first_user";
     private static final String UNREGISTERED_USERNAME = "second_user";
     private static final String FIRST_GAME_NAME = "first game";
+    private static final String SECOND_GAME_NAME = "second game";
     private static final String SHARED_VALID_PASSWORD = "password";
 
     private enum TestType { POSITIVE, NEGATIVE }
+
+    private static final int BAD_REQUEST = 400;
+    private static final int UNAUTHERIZED = 401;
+    private static final int ALREADY_EXISTS = 403;
+
 
     @BeforeAll
     public static void init() {
@@ -38,21 +50,27 @@ public class ServerFacadeTests {
 
     @BeforeEach
     public void initialTestState() {
+        clearDB();
+
+        try {
+            serverFacade.register
+                    (new RegisterRequest(REGISTERED_USERNAME,SHARED_VALID_PASSWORD,"whatever@email.com"));
+            gameID = serverFacade.createGame(new CreateGameRequest(FIRST_GAME_NAME)).gameID();
+            serverFacade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE,gameID));
+        }
+        catch (ResponseException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        failureCode = 0;
+    }
+
+    public void clearDB() {
         try {
             serverFacade.clear(new ClearRequest());
         }
         catch (ResponseException e) {
             throw new RuntimeException(e.getMessage());
         }
-
-        try {
-            serverFacade.register
-                    (new RegisterRequest(REGISTERED_USERNAME,SHARED_VALID_PASSWORD,"whatever@email.com"));
-        }
-        catch (ResponseException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        failureCode = 0;
     }
 
     @FunctionalInterface
@@ -99,7 +117,7 @@ public class ServerFacadeTests {
         LoginResponse response = exceptionWrapper
                 (request, serverFacade::login, TestType.NEGATIVE);
         Assertions.assertNull(response);
-        Assertions.assertEquals(401, failureCode);
+        Assertions.assertEquals(UNAUTHERIZED, failureCode);
     }
 
     @Test
@@ -121,7 +139,7 @@ public class ServerFacadeTests {
         LogoutResponse response = exceptionWrapper
                 (request, serverFacade::logout, TestType.NEGATIVE);
         Assertions.assertNull(response);
-        Assertions.assertEquals(401, failureCode);
+        Assertions.assertEquals(UNAUTHERIZED, failureCode);
     }
 
     @Test
@@ -141,19 +159,78 @@ public class ServerFacadeTests {
     public void negativeRegister() {
         //cant register as same username as other user
         RegisterRequest request =
-                new RegisterRequest(REGISTERED_USERNAME, SHARED_VALID_PASSWORD, "whatever@email.com");
+                new RegisterRequest(REGISTERED_USERNAME, SHARED_VALID_PASSWORD, "");
         RegisterResponse response = exceptionWrapper
                 (request, serverFacade::register, TestType.NEGATIVE);
         Assertions.assertNull(response);
-        Assertions.assertEquals(403, failureCode);
+        Assertions.assertEquals(ALREADY_EXISTS, failureCode);
 
         //cant have null parameters
         RegisterRequest request1 =
-                new RegisterRequest(UNREGISTERED_USERNAME, null, null);
+                new RegisterRequest(UNREGISTERED_USERNAME, null, "");
         RegisterResponse response1 = exceptionWrapper
                 (request1, serverFacade::register, TestType.NEGATIVE);
         Assertions.assertNull(response1);
-        Assertions.assertEquals(400, failureCode);
+        Assertions.assertEquals(BAD_REQUEST, failureCode);
     }
 
+    @Test
+    @DisplayName("List")
+    public void list() {
+        ListRequest request = new ListRequest();
+        ListResponse response = exceptionWrapper(request, serverFacade::list, TestType.POSITIVE);
+        Assertions.assertInstanceOf(ListResponse.class, response);
+
+        GameDataListItem item = new GameDataListItem(gameID, REGISTERED_USERNAME, null, FIRST_GAME_NAME);
+        ArrayList<GameDataListItem> collection = new ArrayList<>();
+        collection.add(item);
+        Assertions.assertEquals(collection,response.games());
+    }
+
+    @Test
+    @DisplayName("Negative List")
+    public void negativeList() {
+        serverFacade.authToken = BAD_AUTH;
+        ListRequest request = new ListRequest();
+        ListResponse response = exceptionWrapper(request, serverFacade::list, TestType.NEGATIVE);
+        Assertions.assertNull(response);
+        Assertions.assertEquals(UNAUTHERIZED, failureCode);
+    }
+
+    @Test
+    @DisplayName("Create")
+    public void create() {
+        CreateGameRequest request = new CreateGameRequest(SECOND_GAME_NAME);
+        CreateGameResponse response = exceptionWrapper(request, serverFacade::createGame, TestType.POSITIVE);
+        Assertions.assertInstanceOf(CreateGameResponse.class, response);
+        Assertions.assertEquals(gameID + 1, response.gameID());
+    }
+
+    @Test
+    @DisplayName("Negative Create")
+    public void negativeCreate() {
+        serverFacade.authToken = BAD_AUTH;
+        CreateGameRequest request = new CreateGameRequest(FIRST_GAME_NAME);
+        CreateGameResponse response = exceptionWrapper(request, serverFacade::createGame, TestType.NEGATIVE);
+        Assertions.assertNull(response);
+        Assertions.assertEquals(UNAUTHERIZED, failureCode);
+    }
+
+    @Test
+    @DisplayName("Join")
+    public void join() {
+        //allows the same AuthToken to Join the Team on either side
+        JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+        JoinGameResponse response = exceptionWrapper(request, serverFacade::joinGame, TestType.POSITIVE);
+        Assertions.assertInstanceOf(JoinGameResponse.class, response);
+    }
+
+    @Test
+    @DisplayName("Negative Join")
+    public void negativeJoin() {
+        JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        JoinGameResponse response = exceptionWrapper(request, serverFacade::joinGame, TestType.NEGATIVE);
+        Assertions.assertNull(response);
+        Assertions.assertEquals(ALREADY_EXISTS, failureCode);
+    }
 }

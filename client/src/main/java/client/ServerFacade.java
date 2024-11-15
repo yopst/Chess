@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 
 public class ServerFacade {
     String authToken;
@@ -71,10 +72,13 @@ public class ServerFacade {
             if (authToken != null) {
                 http.addRequestProperty("authorization", authToken);
             }
-            http.setDoOutput(true);
 
-            writeBody(request, http);
-            http.connect();
+            if (Objects.equals(method, "GET")) http.setDoOutput(false);
+            else {
+                http.setDoOutput(true);
+                writeBody(request, http);
+            }
+
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (ResponseException e) {

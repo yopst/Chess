@@ -12,7 +12,11 @@ public class Repl implements NotificationHandler {
     protected final Client client;
 
     public Repl(String serverUrl) {
-        client = new Client(serverUrl,this);
+        this.client = new Client(serverUrl,this);
+    }
+
+    public Repl(String serverUrl, Client client) {
+        this.client = client;
     }
 
     public void run() {
