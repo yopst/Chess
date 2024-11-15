@@ -68,6 +68,9 @@ public class ServerFacade {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
             http.setDoOutput(true);
 
             writeBody(request, http);
