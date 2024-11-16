@@ -1,7 +1,7 @@
 package server.service;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.UserDAO;
 import model.AuthData;
@@ -17,7 +17,7 @@ public class LoginService {
     private final UserDAO users;
 
     public LoginService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         auth = dbManager.getAuth();
         users = dbManager.getUsers();
     }

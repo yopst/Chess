@@ -1,7 +1,7 @@
 package server.service;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.*;
 import response.ClearResponse;
 import server.exception.EndpointException;
@@ -12,7 +12,7 @@ public class ClearService {
     private final UserDAO users;
 
     public ClearService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         games = dbManager.getGames();
         auth = dbManager.getAuth();
         users = dbManager.getUsers();

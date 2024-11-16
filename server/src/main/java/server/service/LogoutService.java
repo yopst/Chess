@@ -1,7 +1,7 @@
 package server.service;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import response.LogoutResponse;
 import server.exception.EndpointException;
@@ -11,7 +11,7 @@ public class LogoutService {
     private final AuthDAO auth;
 
     public LogoutService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         auth = dbManager.getAuth();
     }
 

@@ -2,7 +2,7 @@ package server.service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import model.GameData;
@@ -17,7 +17,7 @@ public class JoinGameService {
     private final AuthDAO auth;
 
     public JoinGameService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         games = dbManager.getGames();
         auth = dbManager.getAuth();
     }

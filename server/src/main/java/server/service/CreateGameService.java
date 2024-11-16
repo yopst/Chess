@@ -1,7 +1,7 @@
 package server.service;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import request.CreateGameRequest;
@@ -15,7 +15,7 @@ public class CreateGameService {
     private final AuthDAO auth;
 
     public CreateGameService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         gamesDB = dbManager.getGames();
         auth = dbManager.getAuth();
     }

@@ -1,7 +1,7 @@
 package server.service;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.MyDatabaseManager;
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
 import request.LoginRequest;
@@ -16,7 +16,7 @@ public class RegisterService {
     private final LoginService loginService = new LoginService();
 
     public RegisterService() {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
+        MyDatabaseManager dbManager = MyDatabaseManager.getInstance();
         users = dbManager.getUsers();
     }
 
