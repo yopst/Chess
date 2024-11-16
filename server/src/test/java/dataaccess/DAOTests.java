@@ -1,7 +1,7 @@
 package dataaccess;
 
 import dataaccess.interfaces.*;
-import model.AuthData;
+import model.*;
 import org.junit.jupiter.api.*;
 
 public class DAOTests {
@@ -11,6 +11,8 @@ public class DAOTests {
 
     private static String validAuth;
     private static final String VALID_USERNAME = "valid_user";
+    private static final String VALID_PASSWORD = "valid_password";
+
 
     @FunctionalInterface
     public interface DAOFunction<R, T> {
@@ -38,6 +40,7 @@ public class DAOTests {
     public void init() {
         try {
             validAuth = auths.createAuth(VALID_USERNAME).authToken();
+            users.createUser(new UserData(VALID_USERNAME,VALID_PASSWORD,""));
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -111,6 +114,44 @@ public class DAOTests {
     }
 
     //UserDAO
+    @Test
+    @DisplayName("Get User")
+    public void getUser() {
+        UserData userData = exceptionWrapper(VALID_USERNAME, users::getUser);
+        Assertions.assertNotNull(userData);
+        Assertions.assertEquals(VALID_USERNAME, userData.username());
+    }
+
+    @Test
+    @DisplayName("Negative Get User")
+    public void negativeGetUser(){
+        Assertions.assertThrows(DataAccessException.class, () -> users.getUser(null));
+
+        UserData userData = exceptionWrapper("new_user", users::getUser);
+        Assertions.assertNull(userData);
+    }
+
+    @Test
+    @DisplayName("Create User")
+    public void createUser() {
+        UserData newUser = new UserData("valid", "valid", "valid");
+        Assertions.assertDoesNotThrow(() -> users.createUser(newUser));
+    }
+
+    @Test
+    @DisplayName("Negative Create User")
+    public void negativeCreateUser(){
+        Assertions.assertThrows(DataAccessException.class, () -> users.createUser(null));
+
+        UserData invalidUser = new UserData(null, VALID_PASSWORD, "");
+        Assertions.assertThrows(DataAccessException.class, () -> users.createUser(invalidUser));
+
+        UserData invalidUser1 = new UserData(VALID_USERNAME, null, "");
+        Assertions.assertThrows(DataAccessException.class, () -> users.createUser(invalidUser1));
+    }
+
+
+
 
 
 
