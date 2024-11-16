@@ -1,13 +1,15 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame.*;
 import client.exceptions.ResponseException;
 import model.GameDataListItem;
 import repl.*;
 import request.*;
 import response.*;
+import ui.ChessBoardUI;
 import websocket.NotificationHandler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -21,10 +23,15 @@ public class Client {
     private final String serverUrl;
     private NotificationHandler notificationHandler;
 
+    private ChessBoard blankInitializedBoard;
+
     public Client(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
+
+        blankInitializedBoard = new ChessBoard();
+        blankInitializedBoard.resetBoard();
     }
 
     public void enterNextRepl() {
@@ -40,21 +47,11 @@ public class Client {
     }
 
     public void switchState() {
-        if (state == State.SIGNEDIN) {
-            state = State.SIGNEDOUT;
-        }
-        else {
-            state = State.SIGNEDIN;
-        }
+        state = (state == State.SIGNEDIN) ? State.SIGNEDOUT : State.SIGNEDIN;
     }
 
     public String getUser() {
-        if (state == State.SIGNEDOUT) {
-            return "";
-        }
-        else {
-            return "[" + visitorUsername + "]\n";
-        }
+        return (state == State.SIGNEDOUT) ? "": "[" + visitorUsername + "]\n";
     }
 
     public String eval(String input) {
@@ -71,7 +68,7 @@ public class Client {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
-                default -> help();
+                default -> notificationHandler.help();
             };
         } catch (ResponseException ex) {
             //System.out.println(ex.getMessage());
@@ -112,10 +109,6 @@ public class Client {
         throw new ResponseException(402, "Incorrect number of Parameters");
     }
 
-    public String help() {
-        return notificationHandler.help();
-    }
-
     public String logout() throws ResponseException {
         server.logout(new LogoutRequest());
 
@@ -135,7 +128,7 @@ public class Client {
             sb.append(item.whiteUsername());
             sb.append(" ) black( ");
             sb.append(item.blackUsername());
-            sb.append( ") \n");
+            sb.append( " )\n");
         }
         return sb.toString();
     }
@@ -150,11 +143,25 @@ public class Client {
     }
 
     public String join(String... params) throws ResponseException {
-        if (params.length != 1) {
-            System.out.println("Expected: <ID>");
-            throw new ResponseException(402, "Incorrect number of Parameters");
+        if (params.length != 2) {
+            System.out.println("Expected: <BLACK|WHITE> <ID>");
+            throw new ResponseException(402, "Incorrect Number of Parameters");
         }
-        return null;
+
+        TeamColor color = switch (params[0].toLowerCase()) {
+            case "white" -> TeamColor.WHITE;
+            case "black" -> TeamColor.BLACK;
+            default -> throw new ResponseException(402, "<BLACK|WHITE> must be Black or White");
+        };
+
+        try {
+            int gameID = Integer.parseInt(params[1]);
+            JoinGameResponse response = server.joinGame(new JoinGameRequest(color,gameID));
+            return new ChessBoardUI().createChessBoard(color, blankInitializedBoard);
+        }
+        catch (NumberFormatException e) {
+            throw new ResponseException(402, "<ID> Must be a Number");
+        }
     }
 
     public String observe(String... params) throws ResponseException {
@@ -162,7 +169,8 @@ public class Client {
             System.out.println("Expected: <ID>");
             throw new ResponseException(402, "Incorrect number of Parameters");
         }
-        return null;
+
+        return new ChessBoardUI().createChessBoard(TeamColor.WHITE, blankInitializedBoard);
     }
 
     private String handleError(int status) {

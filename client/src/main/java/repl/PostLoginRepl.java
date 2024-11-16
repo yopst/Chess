@@ -17,12 +17,12 @@ public class PostLoginRepl extends Repl implements NotificationHandler{
     public String help() {
         return """
                 - create <GAMENAME>
-                - join <ID>
+                - join <WHITE|BLACK> <ID>
+                - observe <ID>
                 - list
                 - logout
                 - quit
                 - help
-                - observe <ID>
                 """;
     }
 }

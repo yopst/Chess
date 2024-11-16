@@ -33,6 +33,12 @@ public class ChessPosition {
         return column;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Position: ").append(row).append(", ").append(column);
+        return sb.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

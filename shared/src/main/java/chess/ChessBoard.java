@@ -195,6 +195,7 @@ public class ChessBoard {
             }
             sb.append("\n");
         }
+        System.out.println(whereIsTheKing(ChessGame.TeamColor.WHITE).toString());
         return sb.toString();
     }
 
