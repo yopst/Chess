@@ -19,6 +19,8 @@ public class MemoryAuth implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        if (authToken == null) throw new DataAccessException("no authToken supplied");
+        if (!AUTHS.containsKey(authToken)) throw new DataAccessException("no mapping for authToken");
         return AUTHS.get(authToken);
     }
 

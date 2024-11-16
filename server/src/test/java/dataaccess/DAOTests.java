@@ -44,6 +44,7 @@ public class DAOTests {
         }
     }
 
+    //positive clears
     @Test
     @DisplayName("Clear Auth")
     public void clearAuth(){
@@ -62,6 +63,7 @@ public class DAOTests {
         Assertions.assertDoesNotThrow(() -> games.clear());
     }
 
+    //AuthDAO
     @Test
     @DisplayName("Delete Auth")
     public void deleteAuth(){
@@ -92,9 +94,21 @@ public class DAOTests {
         Assertions.assertThrows(DataAccessException.class, () -> auths.createAuth(null));
     }
 
+    @Test
+    @DisplayName("Get Auth")
+    public void getAuth(){
+        AuthData authData = exceptionWrapper(validAuth, auths::getAuth);
+        Assertions.assertNotNull(authData);
+    }
 
+    @Test
+    @DisplayName("Negative Get Auth")
+    public void negativeGetAuth(){
+        Assertions.assertThrows(DataAccessException.class, () -> auths.getAuth(null));
+        Assertions.assertThrows(DataAccessException.class, () -> auths.getAuth("unregistered"));
+    }
 
-
+    //UserDAO
 
 
 
