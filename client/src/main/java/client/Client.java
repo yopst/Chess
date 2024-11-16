@@ -13,21 +13,18 @@ import websocket.NotificationHandler;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
-
 public class Client {
     public State state = State.SIGNEDOUT;
 
     private String visitorUsername = null;
-    private final ServerFacade server;
-    private final String serverUrl;
     private NotificationHandler notificationHandler;
+
+    private final ServerFacade server;
 
     private ChessBoard blankInitializedBoard;
 
     public Client(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
 
         blankInitializedBoard = new ChessBoard();
@@ -36,14 +33,7 @@ public class Client {
 
     public void enterNextRepl() {
         switchState();
-
-        String action = (state == State.SIGNEDIN) ? "You signed in as" : "You signed out";
-        String msg = String.format("%s %s.\n", action, visitorUsername);
-        System.out.print(msg + RESET_TEXT_COLOR);
-
-        Repl repl = (state == State.SIGNEDIN) ? new PostLoginRepl( this): new PreLoginRepl(this);
-        notificationHandler = repl;
-        repl.run();
+        notificationHandler = (state == State.SIGNEDIN) ? new PostLoginRepl( this): new PreLoginRepl(this);
     }
 
     public void switchState() {
@@ -62,7 +52,7 @@ public class Client {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "quit" -> "quit";
+                case "quit" -> quit();
                 case "logout" -> logout();
                 case "create" -> create(params);
                 case "list" -> list();
@@ -75,12 +65,21 @@ public class Client {
         }
     }
 
-    public void dontDupLogIn() throws ResponseException {
+    private String quit() {
+        state = State.QUIT;
+        return "quit";
+    }
+
+    public void mustNotBeLoggedIn() throws ResponseException {
         if (state == State.SIGNEDIN) throw new ResponseException(403, "Already Logged In");
     }
 
+    public void mustBeLoggedIn() throws ResponseException {
+        if (state == State.SIGNEDOUT) throw new ResponseException(401, "not signed in");
+    }
+
     public String register(String... params) throws ResponseException {
-        dontDupLogIn();
+        mustNotBeLoggedIn();
         if (params.length == 3) {
             visitorUsername = params[0];
             String password = params[1];
@@ -88,21 +87,21 @@ public class Client {
 
             server.register(new RegisterRequest(visitorUsername,password,email));
             enterNextRepl();
-            return "quit";
+            return (state == State.QUIT) ? "quit": "";
         }
         System.out.println("Expected: <username> <password> <email>");
         throw new ResponseException(402, "Incorrect number of Parameters");
     }
 
     public String login(String... params) throws ResponseException {
-        dontDupLogIn();
+        mustNotBeLoggedIn();
         if (params.length == 2) {
             visitorUsername = params[0];
             String password = params[1];
 
             server.login(new LoginRequest(visitorUsername,password));
             enterNextRepl();
-            return "quit";
+            return (state == State.QUIT) ? "quit": "";
         }
         System.out.println("Expected: <username> <password>");
         throw new ResponseException(402, "Incorrect number of Parameters");
@@ -111,7 +110,7 @@ public class Client {
     public String logout() throws ResponseException {
         server.logout(new LogoutRequest());
         enterNextRepl();
-        return "";
+        return "quit";
     }
 
     public String list() throws ResponseException {
@@ -132,6 +131,7 @@ public class Client {
     }
 
     public String create(String... params) throws ResponseException {
+        mustBeLoggedIn();
         if (params.length != 1) {
             System.out.println("Expected: <GAMENAME>");
             throw new ResponseException(402, "Incorrect number of Parameters");
@@ -141,6 +141,7 @@ public class Client {
     }
 
     public String join(String... params) throws ResponseException {
+        mustBeLoggedIn();
         if (params.length != 2) {
             System.out.println("Expected: <BLACK|WHITE> <ID>");
             throw new ResponseException(402, "Incorrect Number of Parameters");
@@ -158,16 +159,16 @@ public class Client {
             return new ChessBoardUI().createChessBoard(color, blankInitializedBoard);
         }
         catch (NumberFormatException e) {
-            throw new ResponseException(402, "<ID> Must be a Number");
+            throw new ResponseException(400, "<ID> Must be a Number");
         }
     }
 
     public String observe(String... params) throws ResponseException {
+        mustBeLoggedIn();
         if (params.length != 1) {
             System.out.println("Expected: <ID>");
             throw new ResponseException(402, "Incorrect number of Parameters");
         }
-
         return new ChessBoardUI().createChessBoard(TeamColor.WHITE, blankInitializedBoard);
     }
 
