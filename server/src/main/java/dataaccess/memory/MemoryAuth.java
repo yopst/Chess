@@ -11,6 +11,7 @@ public class MemoryAuth implements AuthDAO {
 
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
+        if (username == null) throw new DataAccessException("no username supplied");
         AuthData authData = AuthData.createWithRandomToken(username);
         AUTHS.put(authData.authToken(), authData);
         return authData;
