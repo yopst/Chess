@@ -1,16 +1,16 @@
 package repl;
 
 import client.Client;
-import webSocketMessages.Notification;
+import client.State;
 import websocket.NotificationHandler;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+
 public class PostLoginRepl extends Repl implements NotificationHandler{
-    public PostLoginRepl(String serverUrl) {
-        super(serverUrl);
-    }
 
     public PostLoginRepl(Client client) {
-        super(client);
+        System.out.println("You signed in as " + client.getUser() + RESET_TEXT_COLOR);
+        super.run(client);
     }
 
 

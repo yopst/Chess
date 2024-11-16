@@ -10,21 +10,12 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
-    protected final Client client;
 
-    public Repl(String serverUrl) {
-        this.client = new Client(serverUrl,this);
-    }
-
-    public Repl(Client client) {
-        this.client = client;
-    }
-
-    public void run() {
+    public void run(Client client) {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            printPrompt();
+            printPrompt(client);
             String line = scanner.nextLine();
 
             try {
@@ -37,11 +28,14 @@ public class Repl implements NotificationHandler {
                 System.out.print(msg);
             }
         }
-        System.out.println();
+    }
+
+    private void printPrompt(Client client) {
+        System.out.print("\n" + RESET_TEXT_COLOR + client.getUser() + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + client.getUser() + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String help() {

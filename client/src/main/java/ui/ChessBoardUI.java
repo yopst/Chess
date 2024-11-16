@@ -65,9 +65,6 @@ public class ChessBoardUI {
     }
 
     private String positionToChessPieceString(ChessBoard board,ChessPosition pos) {
-        if (pos.getRow() == 1 && pos.getColumn() == 1) {
-            ChessPiece piece = board.getPiece(pos);
-        }
         return (board.getPiece(pos) != null) ? board.getPiece(pos).toString(): " ";
     }
 }

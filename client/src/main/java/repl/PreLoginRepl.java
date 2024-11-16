@@ -1,12 +1,9 @@
 package repl;
 
 import client.Client;
-import webSocketMessages.Notification;
 import websocket.NotificationHandler;
 
-import java.util.Scanner;
-
-import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class PreLoginRepl extends Repl implements NotificationHandler {
     private static final String INTRO = """
@@ -21,17 +18,12 @@ public class PreLoginRepl extends Repl implements NotificationHandler {
                     ___________________________________________\s
                     """;
 
-    public PreLoginRepl(String serverUrl) {
-        super(serverUrl);
-    }
-
-    public PreLoginRepl(Client client) {
-        super(client);
-    }
-
-    public void run() {
+    public PreLoginRepl() {
         System.out.print(INTRO);
-        super.run();
+    }
+    public PreLoginRepl(Client client) {
+        System.out.println("Successfully signed out " + client.getUser() + RESET_TEXT_COLOR);
+        super.run(client);
     }
 
     public String help() {
