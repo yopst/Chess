@@ -1,8 +1,13 @@
 package dataaccess;
 
+import chess.ChessGame;
 import dataaccess.interfaces.*;
 import model.*;
 import org.junit.jupiter.api.*;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 public class DAOTests {
     static AuthDAO auths;
@@ -10,8 +15,11 @@ public class DAOTests {
     static UserDAO users;
 
     private static String validAuth;
+    private static Integer validGameID;
     private static final String VALID_USERNAME = "valid_user";
     private static final String VALID_PASSWORD = "valid_password";
+    private static final String VALID_GAME_NAME = "valid_game_name";
+
 
 
     @FunctionalInterface
@@ -39,8 +47,13 @@ public class DAOTests {
     @BeforeEach
     public void init() {
         try {
+            games.clear();
+            users.clear();
+            auths.clear();
+
             validAuth = auths.createAuth(VALID_USERNAME).authToken();
             users.createUser(new UserData(VALID_USERNAME,VALID_PASSWORD,""));
+            validGameID = games.createGame(VALID_GAME_NAME);
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -150,9 +163,62 @@ public class DAOTests {
         Assertions.assertThrows(DataAccessException.class, () -> users.createUser(invalidUser1));
     }
 
+    //GameDAO
+    @Test
+    @DisplayName("Create Game")
+    public void createGame() {
+        Integer gameID = exceptionWrapper("valid_game_name", games::createGame);
+        Assertions.assertNotNull(gameID);
+        Integer gameID1 = exceptionWrapper("valid_game_name", games::createGame);
+        Assertions.assertNotNull(gameID1);
+        Assertions.assertEquals(gameID, gameID1 - 1);
+    }
 
+    @Test
+    @DisplayName("Negative Create Game")
+    public void negativeCreateGame(){
+        Assertions.assertThrows(DataAccessException.class, () -> games.createGame(null));
+    }
 
+    @Test
+    @DisplayName("Get Game")
+    public void getGame() {
+        GameData gameData = exceptionWrapper(validGameID, games::getGame);
+        Assertions.assertNotNull(gameData);
+        Assertions.assertEquals(1,gameData.gameID());
+    }
 
+    @Test
+    @DisplayName("Negative Get Game")
+    public void negativeGetGame() {
+        GameData gameData = exceptionWrapper(42, games::getGame);
+        Assertions.assertNull(gameData);
+    }
+
+    @Test
+    @DisplayName("Update Game")
+    public void updateGame() {
+        Assertions.assertDoesNotThrow(() ->
+                games.updateGame(1, VALID_USERNAME, ChessGame.TeamColor.BLACK));
+        Assertions.assertDoesNotThrow(() ->
+                games.updateGame(1, VALID_USERNAME, ChessGame.TeamColor.WHITE));
+    }
+
+    @Test
+    @DisplayName("Negative Update Game")
+    public void negativeUpdateGame() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> games.updateGame(42, VALID_USERNAME, ChessGame.TeamColor.WHITE));
+    }
+
+    @Test
+    @DisplayName("List Games")
+    public void listGames() {
+        Collection<GameDataListItem> list = games.listGames();
+        GameDataListItem item = new GameDataListItem(1,null,null, VALID_GAME_NAME);
+        Collection<GameDataListItem> expectedList = List.of(item);
+        Assertions.assertEquals(expectedList.contains(item),list.contains(item));
+    }
 
 
 }
