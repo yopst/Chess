@@ -105,7 +105,9 @@ public class DAOTests {
     @DisplayName("Negative Get Auth")
     public void negativeGetAuth(){
         Assertions.assertThrows(DataAccessException.class, () -> auths.getAuth(null));
-        Assertions.assertThrows(DataAccessException.class, () -> auths.getAuth("unregistered"));
+
+        AuthData authData = exceptionWrapper("invalidAuth", auths::getAuth);
+        Assertions.assertNull(authData);
     }
 
     //UserDAO
