@@ -71,7 +71,6 @@ public class Client {
                 default -> notificationHandler.help();
             };
         } catch (ResponseException ex) {
-            //System.out.println(ex.getMessage());
             return handleError(ex.getStatusCode());
         }
     }
@@ -89,7 +88,7 @@ public class Client {
 
             server.register(new RegisterRequest(visitorUsername,password,email));
             enterNextRepl();
-            return "";
+            return "quit";
         }
         System.out.println("Expected: <username> <password> <email>");
         throw new ResponseException(402, "Incorrect number of Parameters");
@@ -103,7 +102,7 @@ public class Client {
 
             server.login(new LoginRequest(visitorUsername,password));
             enterNextRepl();
-            return "";
+            return "quit";
         }
         System.out.println("Expected: <username> <password>");
         throw new ResponseException(402, "Incorrect number of Parameters");
@@ -111,7 +110,6 @@ public class Client {
 
     public String logout() throws ResponseException {
         server.logout(new LogoutRequest());
-
         enterNextRepl();
         return "";
     }

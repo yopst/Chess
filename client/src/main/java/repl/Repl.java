@@ -4,6 +4,7 @@ import client.Client;
 import webSocketMessages.Notification;
 import websocket.NotificationHandler;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -28,7 +29,9 @@ public class Repl implements NotificationHandler {
 
             try {
                 result = client.eval(line);
-                System.out.print(result);
+                if (!Objects.equals(result, "quit")) {
+                    System.out.print(result);
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
