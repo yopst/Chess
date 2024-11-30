@@ -9,9 +9,9 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessMove {
-    private ChessPosition start;
-    private ChessPosition end;
-    private ChessPiece.PieceType promotionType;
+    private final ChessPosition start;
+    private final ChessPosition end;
+    private final ChessPiece.PieceType promotionType;
     private boolean isEnPassant;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
@@ -28,8 +28,7 @@ public class ChessMove {
     }
 
     public ChessMove reverseMove() {
-        ChessMove undo = new ChessMove(end,start);
-        return undo;
+        return new ChessMove(end,start);
     }
 
     public void setEnPassant() {
@@ -52,11 +51,6 @@ public class ChessMove {
         return Objects.hash(start, end, promotionType);
     }
 
-    public ChessMove undoMove() {
-        ChessMove undo = new ChessMove(end,start);
-        //doesn't work with Pawn Promotion
-        return undo;
-    }
 
     /**
      * @return ChessPosition of starting location

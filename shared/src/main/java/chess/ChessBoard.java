@@ -154,34 +154,14 @@ public class ChessBoard {
         if (!this.onBoard(position)) {
             return false;
         }
-        if (this.getPiece(position) != null) {
-            return false;
-        }
-        return true;
+        return this.getPiece(position) == null;
     }
 
     public boolean onBoard(ChessPosition position) {
-        if (position.getRow() > 8
-                || position.getRow() < 1
-                || position.getColumn() > 8
-                || position.getColumn() < 1) {
-            return false;
-        }
-        return true;
-    }
-
-    public ChessPosition enPassantPosition() {
-        if (lastMove != null &&
-                this.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
-                (lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) % 2 == 0) {
-            if (this.getPiece(lastMove.getEndPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) {
-                return new ChessPosition(lastMove.getEndPosition().getRow() - 1,lastMove.getEndPosition().getColumn());
-            }
-            else {
-                return new ChessPosition(lastMove.getEndPosition().getRow() + 1,lastMove.getEndPosition().getColumn());
-            }
-        }
-        return null;
+        return position.getRow() <= 8
+                && position.getRow() >= 1
+                && position.getColumn() <= 8
+                && position.getColumn() >= 1;
     }
 
     public String toString() {
@@ -189,7 +169,7 @@ public class ChessBoard {
         for (ChessPiece[] row : chessBoard) {
             for (ChessPiece piece: row) {
                 if (piece != null) {
-                    sb.append(piece.toString());
+                    sb.append(piece);
                     sb.append(",");
                 }
             }
