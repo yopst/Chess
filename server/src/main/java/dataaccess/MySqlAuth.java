@@ -4,7 +4,7 @@ import dataaccess.interfaces.AuthDAO;
 import model.AuthData;
 import java.sql.*;
 
-public class MySqlAuth implements AuthDAO {
+public class MySqlAuth extends BaseSqlDao implements AuthDAO {
 
     public MySqlAuth() throws DataAccessException {
         createAuthTable();
@@ -70,17 +70,4 @@ public class MySqlAuth implements AuthDAO {
         executeUpdate(sql);
     }
 
-    private void executeUpdate(String sql, String... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            for (int i = 0; i < params.length; i++) {
-                stmt.setString(i + 1, params[i]);
-            }
-
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Error executing SQL: " + e.getMessage());
-        }
-    }
 }

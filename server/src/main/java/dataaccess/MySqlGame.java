@@ -2,18 +2,16 @@ package dataaccess;
 
 import chess.ChessGame;
 import dataaccess.interfaces.GameDAO;
-import model.AuthData;
 import model.GameData;
 import model.GameDataListItem;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import com.google.gson.Gson;
 
 
-public class MySqlGame implements GameDAO {
+public class MySqlGame extends BaseSqlDao implements GameDAO {
     private final Gson gson = new Gson();
     private int numGames;
 
@@ -118,19 +116,5 @@ public class MySqlGame implements GameDAO {
         String sql = "TRUNCATE TABLE games";
         executeUpdate(sql);
         numGames = 0;
-    }
-
-    private void executeUpdate(String sql, String... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            for (int i = 0; i < params.length; i++) {
-                stmt.setString(i + 1, params[i]);
-            }
-
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Error executing update: " + e.getMessage());
-        }
     }
 }

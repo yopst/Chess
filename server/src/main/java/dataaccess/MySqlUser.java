@@ -6,7 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-public class MySqlUser implements UserDAO {
+public class MySqlUser extends BaseSqlDao implements UserDAO {
 
     public MySqlUser() throws DataAccessException{
         createUserTable();
@@ -61,20 +61,5 @@ public class MySqlUser implements UserDAO {
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE users";
         executeUpdate(sql);
-    }
-
-    private void executeUpdate(String sql, String... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            // Set parameters for the PreparedStatement if any
-            for (int i = 0; i < params.length; i++) {
-                stmt.setString(i + 1, params[i]);
-            }
-
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Error executing update: " + e.getMessage());
-        }
     }
 }
