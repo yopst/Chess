@@ -52,14 +52,28 @@ public class ChessGame {
             ChessPiece newPiece;
             TeamColor pieceColor = turn;
             ChessPiece.PieceType type = move.getPromotionPiece();
-            newPiece = switch (type) {
-                case PAWN -> new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN);
-                case ROOK -> new ChessPiece(pieceColor, ChessPiece.PieceType.ROOK);
-                case BISHOP -> new ChessPiece(pieceColor, ChessPiece.PieceType.BISHOP);
-                case KNIGHT -> new ChessPiece(pieceColor, ChessPiece.PieceType.KNIGHT);
-                case QUEEN -> new ChessPiece(pieceColor, ChessPiece.PieceType.QUEEN);
-                case KING -> new ChessPiece(pieceColor, ChessPiece.PieceType.KING);
-            };
+            switch (type) {
+                case PAWN:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN);
+                    break;
+                case ROOK:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.ROOK);
+                    break;
+                case BISHOP:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.BISHOP);
+                    break;
+                case KNIGHT:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.KNIGHT);
+                    break;
+                case QUEEN:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.QUEEN);
+                    break;
+                case KING:
+                    newPiece = new ChessPiece(pieceColor, ChessPiece.PieceType.KING);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported piece type: " + type);
+            }
             return newPiece;
         }
         return null;
