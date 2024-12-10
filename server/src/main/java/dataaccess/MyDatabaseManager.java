@@ -30,7 +30,7 @@ public class MyDatabaseManager extends DatabaseManager {
 
     public static MyDatabaseManager getInstance() {
         if (instance == null) {
-            instance = new MyDatabaseManager(true); //Change Database type with different Constructor
+            instance = new MyDatabaseManager(false); //Change Database type with different Constructor
         }
         return instance;
     }
