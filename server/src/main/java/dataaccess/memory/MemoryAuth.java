@@ -11,7 +11,9 @@ public class MemoryAuth implements AuthDAO {
 
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
-        if (username == null) throw new DataAccessException("no username supplied");
+        if (username == null) {
+            throw new DataAccessException("no username supplied");
+        }
         AuthData authData = AuthData.createWithRandomToken(username);
         AUTHS.put(authData.authToken(), authData);
         return authData;
@@ -19,7 +21,9 @@ public class MemoryAuth implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        if (authToken == null) throw new DataAccessException("no authToken supplied");
+        if (authToken == null) {
+            throw new DataAccessException("no authToken supplied");
+        }
         return AUTHS.get(authToken);
     }
 

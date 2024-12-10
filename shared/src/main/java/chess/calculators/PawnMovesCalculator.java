@@ -40,14 +40,18 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         if (color == ChessGame.TeamColor.WHITE) {
             return 8;
         }
-        else return 1;
+        else {
+            return 1;
+        }
     }
 
     private int startRow() {
         if (color == ChessGame.TeamColor.WHITE) {
             return 2;
         }
-        else return 7;
+        else {
+            return 7;
+        }
     }
 
     private boolean attackConditions(ChessBoard board, ChessPosition pos) {

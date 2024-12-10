@@ -71,11 +71,15 @@ public class Client {
     }
 
     public void mustNotBeLoggedIn() throws ResponseException {
-        if (state == State.SIGNEDIN) throw new ResponseException(403, "Already Logged In");
+        if (state == State.SIGNEDIN) {
+            throw new ResponseException(403, "Already Logged In");
+        }
     }
 
     public void mustBeLoggedIn() throws ResponseException {
-        if (state == State.SIGNEDOUT) throw new ResponseException(401, "not signed in");
+        if (state == State.SIGNEDOUT) {
+            throw new ResponseException(401, "not signed in");
+        }
     }
 
     public String register(String... params) throws ResponseException {

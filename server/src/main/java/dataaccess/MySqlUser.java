@@ -35,7 +35,9 @@ public class MySqlUser extends BaseSqlDao implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        if (username == null) throw new DataAccessException("no username supplied");
+        if (username == null) {
+            throw new DataAccessException("no username supplied");
+        }
 
         String sql = "SELECT username, password, email FROM users WHERE username = ?";
         try (Connection conn = DatabaseManager.getConnection();

@@ -22,7 +22,9 @@ public class MemoryUser implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        if (username == null) throw new DataAccessException("no username supplied");
+        if (username == null) {
+            throw new DataAccessException("no username supplied");
+        }
         return USERS.get(username);
     }
 

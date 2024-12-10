@@ -32,43 +32,47 @@ public class ChessPiece {
     }
 
     public PieceMovesCalculator getCalculator() {
-        switch (type) {
-            case PAWN:
-                return new PawnMovesCalculator();
-            case ROOK:
-                return new RookMovesCalculator();
-            case KNIGHT:
-                return new KnightMovesCalculator();
-            case BISHOP:
-                return new BishopMovesCalculator();
-            case KING:
-                return new KingMovesCalculator();
-            case QUEEN:
-                return new QueenMovesCalculator();
-            default:
-                throw new IllegalArgumentException("Unknown piece type: " + type);
-        }
+        return switch (type) {
+            case PAWN -> new PawnMovesCalculator();
+            case ROOK -> new RookMovesCalculator();
+            case KNIGHT -> new KnightMovesCalculator();
+            case BISHOP -> new BishopMovesCalculator();
+            case KING -> new KingMovesCalculator();
+            case QUEEN -> new QueenMovesCalculator();
+        };
     }
 
     public String toString() {
         switch (type) {
             case PAWN:
-                if (color == ChessGame.TeamColor.BLACK) return "p";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "p";
+                }
                 return "P";
             case ROOK:
-                if (color == ChessGame.TeamColor.BLACK) return "r";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "r";
+                }
                 return "R";
             case KNIGHT:
-                if (color == ChessGame.TeamColor.BLACK) return "n";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "n";
+                }
                 return "N";
             case BISHOP:
-                if (color == ChessGame.TeamColor.BLACK) return "b";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "b";
+                }
                 return "B";
             case KING:
-                if (color == ChessGame.TeamColor.BLACK) return "k";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "k";
+                }
                 return "K";
             case QUEEN:
-                if (color == ChessGame.TeamColor.BLACK) return "q";
+                if (color == ChessGame.TeamColor.BLACK) {
+                    return "q";
+                }
                 return "Q";
             default:
                 throw new IllegalArgumentException("Unknown piece type: " + type);
