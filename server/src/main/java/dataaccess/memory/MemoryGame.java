@@ -12,7 +12,9 @@ public class MemoryGame implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
-        if (gameName == null) throw new DataAccessException("no name supplied");
+        if (gameName == null) {
+            throw new DataAccessException("no name supplied");
+        }
         int gameID = GAMES.size() + 1;
         GameData gameData = new GameData(gameID, null,null, gameName, new ChessGame());
         GAMES.put(gameID, gameData);

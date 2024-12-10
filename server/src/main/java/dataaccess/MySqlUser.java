@@ -59,7 +59,7 @@ public class MySqlUser implements UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        String sql = "DELETE FROM users";
+        String sql = "TRUNCATE TABLE users";
         executeUpdate(sql);
     }
 

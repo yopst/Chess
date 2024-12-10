@@ -66,7 +66,7 @@ public class MySqlAuth implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        String sql = "DELETE FROM auth_tokens";
+        String sql = "TRUNCATE TABLE auth_tokens";
         executeUpdate(sql);
     }
 
