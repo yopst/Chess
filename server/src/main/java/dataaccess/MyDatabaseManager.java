@@ -3,7 +3,7 @@ package dataaccess;
 import dataaccess.interfaces.*;
 import dataaccess.memory.*;
 
-public class MyDatabaseManager extends DatabaseManager{
+public class MyDatabaseManager extends DatabaseManager {
     private static MyDatabaseManager instance;
     private final GameDAO games;
     private final AuthDAO auth;
