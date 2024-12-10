@@ -6,6 +6,17 @@ import java.sql.*;
 
 public class MySqlAuth implements AuthDAO {
 
+    public MySqlAuth() throws DataAccessException {
+        createAuthTable();
+    }
+
+    private void createAuthTable() throws DataAccessException {
+        String sql = "CREATE TABLE IF NOT EXISTS auth_tokens ("
+                + "token VARCHAR(255) PRIMARY KEY, "
+                + "username VARCHAR(255) NOT NULL)";
+        executeUpdate(sql);
+    }
+
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
         if (username == null) {
@@ -25,10 +36,10 @@ public class MySqlAuth implements AuthDAO {
             throw new DataAccessException("no authToken supplied");
         }
 
-        String sql = "SELECT token FROM auth_tokens WHERE token = ?";
+        String sql = "SELECT token, username FROM auth_tokens WHERE token = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, authToken);  // Set the authToken parameter for the query
+            stmt.setString(1, authToken);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String username = rs.getString("username");
