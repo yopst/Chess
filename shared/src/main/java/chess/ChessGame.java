@@ -59,7 +59,6 @@ public class ChessGame {
                 case KNIGHT -> new ChessPiece(pieceColor, ChessPiece.PieceType.KNIGHT);
                 case QUEEN -> new ChessPiece(pieceColor, ChessPiece.PieceType.QUEEN);
                 case KING -> new ChessPiece(pieceColor, ChessPiece.PieceType.KING);
-                default -> throw new IllegalArgumentException("Unsupported piece type: " + type);
             };
             return newPiece;
         }
@@ -217,6 +216,24 @@ public class ChessGame {
         }
     }
 
+    private boolean allyAtPosition(ChessPosition pos, TeamColor teamColor) {
+        return !board.emptySpaceOnBoard(pos) &&
+                board.getPiece(pos).getTeamColor() == teamColor;
+    }
+
+    private ArrayList<ChessPosition> allyPositions(TeamColor teamColor) {
+        ArrayList<ChessPosition> allyPositions = new ArrayList<>();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                if (allyAtPosition(pos, teamColor)) {
+                    allyPositions.add(pos);
+                }
+            }
+        }
+        return allyPositions;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -305,27 +322,16 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) {
-            return false;
-        }
+        //For every piece of your team, will moving them get you out of check
+        return isInCheck(teamColor) && noValidMoves(teamColor);
+    }
 
-        //For every piece of your team, try to make a
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition pos = new ChessPosition(row, col);
-                if (!board.emptySpaceOnBoard(pos) &&
-                        board.getPiece(pos).getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = board.getPiece(pos).pieceMoves(board,pos);
-                    for (ChessMove move: moves) {
-                        try {
-                            ChessMove pausedLastMove = board.getLastMove();
-                            this.makeMove(move);
-                            this.undoMove();
-                            board.setLastMove(pausedLastMove);
-                            return false;
-                        } catch (InvalidMoveException e) { continue;}
-                    }
-                }
+    private boolean noValidMoves(TeamColor teamColor) {
+        ArrayList<ChessPosition> allyPositions = allyPositions(teamColor);
+        for (ChessPosition ally: allyPositions) {
+            Collection<ChessMove> moves = validMoves(ally);
+            if (!moves.isEmpty()) {
+                return false;
             }
         }
         return true;
@@ -342,34 +348,7 @@ public class ChessGame {
         if (teamColor != turn) {
             return false;
         }
-        if (this.isInCheckmate(teamColor)) {
-            return false;
-        }
-        int numMovesAvailable = 0;
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition pos = new ChessPosition(row, col);
-                if (!board.emptySpaceOnBoard(pos) &&
-                        board.getPiece(pos).getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = board.getPiece(pos).pieceMoves(board,pos);
-                    numMovesAvailable += moves.size();
-                    for (ChessMove move: moves) {
-                        try {
-                            ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
-                            ChessMove pausedLastMove = board.getLastMove();
-                            this.makeMove(move);
-                            this.undoMove();
-                            board.addPiece(move.getEndPosition(),capturedPiece);
-                            board.setLastMove(pausedLastMove);
-                            return false;
-                        } catch (InvalidMoveException e) {
-                            numMovesAvailable--;
-                        }
-                    }
-                }
-            }
-        }
-        return numMovesAvailable == 0;
+        return !isInCheck(teamColor) && noValidMoves(teamColor);
     }
 
     /**
