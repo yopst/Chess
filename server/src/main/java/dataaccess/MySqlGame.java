@@ -1,7 +1,6 @@
-package dataaccess.mysql;
+package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import dataaccess.interfaces.GameDAO;
 import model.GameData;
 import model.GameDataListItem;
@@ -10,6 +9,12 @@ import java.util.Collection;
 import java.util.List;
 
 public class MySqlGame implements GameDAO {
+    MyDatabaseManager dbManager;
+
+    public MySqlGame(MyDatabaseManager dbManager) {
+        this.dbManager = dbManager;
+    }
+
     @Override
     public int createGame(String gameName) throws DataAccessException {
         return 0;

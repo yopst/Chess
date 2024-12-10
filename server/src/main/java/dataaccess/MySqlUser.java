@@ -1,10 +1,14 @@
-package dataaccess.mysql;
+package dataaccess;
 
-import dataaccess.DataAccessException;
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
 
 public class MySqlUser implements UserDAO {
+    MyDatabaseManager dbManager;
+
+    public MySqlUser(MyDatabaseManager dbManager) {
+        this.dbManager = dbManager;
+    }
     @Override
     public void createUser(UserData userData) throws DataAccessException {
 

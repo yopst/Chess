@@ -2,7 +2,6 @@ package dataaccess;
 
 import dataaccess.interfaces.*;
 import dataaccess.memory.*;
-import dataaccess.mysql.*;
 
 public class MyDatabaseManager extends DatabaseManager{
     private static MyDatabaseManager instance;
@@ -18,9 +17,9 @@ public class MyDatabaseManager extends DatabaseManager{
 
     private MyDatabaseManager(boolean useMySql) {
         if (useMySql) {
-            games = new MySqlGame();
-            auth = new MySqlAuth();
-            users = new MySqlUser();
+            games = new MySqlGame(this);
+            auth = new MySqlAuth(this);
+            users = new MySqlUser(this);
         } else {
             games = new MemoryGame();
             auth = new MemoryAuth();
@@ -30,7 +29,7 @@ public class MyDatabaseManager extends DatabaseManager{
 
     public static MyDatabaseManager getInstance() {
         if (instance == null) {
-            instance = new MyDatabaseManager(false); //Change Database type with different Constructor
+            instance = new MyDatabaseManager(true); //Change Database type with different Constructor
         }
         return instance;
     }
