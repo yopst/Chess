@@ -34,10 +34,6 @@ public class Repl implements NotificationHandler {
         System.out.print("\n" + RESET_TEXT_COLOR + client.getUser() + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
-    private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
-    }
-
     public String help() {
         return "Generic REPL";
     }
