@@ -24,12 +24,6 @@ public class MemoryGame implements GameDAO {
         return GAMES.get(gameID);
     }
 
-//    @Override
-//    public void deleteGame(int gameID) throws DataAccessException {
-//        if (getGame(gameID) == null) throw new DataAccessException("no such game to delete");
-//        GAMES.remove(gameID);
-//    }
-
     @Override
     public void updateGame(int gameID, String username, ChessGame.TeamColor playerColor) throws DataAccessException {
         GameData currentGameData = GAMES.get(gameID);

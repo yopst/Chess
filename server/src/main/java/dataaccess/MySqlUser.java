@@ -2,6 +2,8 @@ package dataaccess;
 
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 
 public class MySqlUser implements UserDAO {
@@ -26,8 +28,9 @@ public class MySqlUser implements UserDAO {
                 userData.email() == null) {
             throw new DataAccessException("userData with null params supplied");
         }
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        executeUpdate(sql, userData.username(), userData.password(), userData.email());
+        executeUpdate(sql, userData.username(), hashedPassword, userData.email());
     }
 
     @Override

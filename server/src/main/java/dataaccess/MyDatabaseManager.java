@@ -9,17 +9,18 @@ public class MyDatabaseManager extends DatabaseManager {
     private final AuthDAO auth;
     private final UserDAO users;
 
-    private MyDatabaseManager() {
-        games = new MemoryGame();
-        auth = new MemoryAuth();
-        users = new MemoryUser();
-    }
-
     private MyDatabaseManager(boolean useMySql) {
         if (useMySql) {
-            games = new MySqlGame(this);
-            auth = new MySqlAuth(this);
-            users = new MySqlUser(this);
+
+            try {
+                games = new MySqlGame();
+                auth = new MySqlAuth();
+                users = new MySqlUser();
+                createDatabase();
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else {
             games = new MemoryGame();
             auth = new MemoryAuth();

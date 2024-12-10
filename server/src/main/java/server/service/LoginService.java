@@ -6,11 +6,14 @@ import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import response.LoginResponse;
 import server.exception.BadRequestException;
 import server.exception.EndpointException;
 import server.exception.UnauthorizedException;
+
+import java.util.Objects;
 
 public class LoginService {
     private final AuthDAO auth;
@@ -29,7 +32,7 @@ public class LoginService {
                 throw new BadRequestException("bad request");
             }
             UserData userData = users.getUser(loginRequest.username());
-            if (userData == null || !loginRequest.password().equals(userData.password())) {
+            if (userData == null || this.passwordUnverified(loginRequest.password(), userData.password())) {
                 throw new UnauthorizedException("unauthorized");
             }
             AuthData authData = auth.createAuth(userData.username());
@@ -38,5 +41,11 @@ public class LoginService {
         catch (DataAccessException e) {
             throw new EndpointException(e.getMessage(), 404);
         }
+    }
+    private boolean passwordUnverified(String clearTextPassword, String hashedPassword) {
+        if (Objects.equals(clearTextPassword, hashedPassword)) {
+            return false;
+        }
+        return !BCrypt.checkpw(clearTextPassword, hashedPassword);
     }
 }

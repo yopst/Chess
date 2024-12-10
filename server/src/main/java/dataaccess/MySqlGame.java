@@ -9,11 +9,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class MySqlGame implements GameDAO {
-    MyDatabaseManager dbManager;
-
-    public MySqlGame(MyDatabaseManager dbManager) {
-        this.dbManager = dbManager;
-    }
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
