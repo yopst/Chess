@@ -12,8 +12,8 @@ public class ChessBoardUI {
         StringBuilder board = new StringBuilder();
 
         // Reset sequence to clear all styles
-        final String RESET_STYLES = EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_BG_COLOR;
-        board.append(RESET_STYLES);
+        final String resetStyles = EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_BG_COLOR;
+        board.append(resetStyles);
 
         // Column labels
         final String columnsWhite = "    a  b  c  d  e  f  g  h\n";
@@ -47,7 +47,7 @@ public class ChessBoardUI {
                         .append(' ')  // Padding
                         .append(positionToChessPieceString(chessBoard,new ChessPosition(row, adjustedColumn)))  // Middle character
                         .append(' ')  // Padding
-                        .append(RESET_STYLES);  // Reset to default colors
+                        .append(resetStyles);  // Reset to default colors
             }
 
             // Add row label at the end of the line

@@ -1,7 +1,7 @@
 package repl;
 
 import client.Client;
-import webSocketMessages.Notification;
+import websocketmessages.Notification;
 import websocket.NotificationHandler;
 
 import java.util.Objects;
