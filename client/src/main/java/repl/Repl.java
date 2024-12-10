@@ -41,10 +41,4 @@ public class Repl implements NotificationHandler {
     public String help() {
         return "Generic REPL";
     }
-
-    @Override
-    public void notify(Notification notification) {
-        System.out.println(SET_BG_COLOR_RED + notification.message());
-        printPrompt();
-    }
 }
