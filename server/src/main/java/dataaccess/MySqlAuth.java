@@ -14,15 +14,8 @@ public class MySqlAuth implements AuthDAO {
 
         AuthData authData = AuthData.createWithRandomToken(username);
         String sql = "INSERT INTO auth_tokens (token, username) VALUES (?, ?)";
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        executeUpdate(sql, authData.authToken(), username);
 
-            stmt.setString(1, authData.authToken());
-            stmt.setString(2, username);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Error creating auth data:" + e.getMessage());
-        }
         return authData;
     }
 
@@ -57,25 +50,26 @@ public class MySqlAuth implements AuthDAO {
         }
 
         String sql = "DELETE FROM auth_tokens WHERE token = ?";
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, authToken);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new DataAccessException("Error deleting auth data: " + e.getMessage());
-        }
+        executeUpdate(sql, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
         String sql = "DELETE FROM auth_tokens";
+        executeUpdate(sql);
+    }
+
+    private void executeUpdate(String sql, String... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.executeUpdate();
 
+            for (int i = 0; i < params.length; i++) {
+                stmt.setString(i + 1, params[i]);
+            }
+
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error clearing auth data: " + e.getMessage(), e);
+            throw new DataAccessException("Error executing SQL: " + e.getMessage());
         }
     }
 }
