@@ -13,10 +13,10 @@ public class MyDatabaseManager extends DatabaseManager {
         if (useMySql) {
 
             try {
+                createDatabase();
                 games = new MySqlGame();
                 auth = new MySqlAuth();
                 users = new MySqlUser();
-                createDatabase();
             }
             catch (Exception e) {
                 throw new RuntimeException(e);
