@@ -2,7 +2,10 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame.*;
+import chess.ChessMove;
+import chess.ChessPosition;
 import client.exceptions.ResponseException;
+import com.google.gson.Gson;
 import model.GameDataListItem;
 import repl.*;
 import request.*;
@@ -13,6 +16,7 @@ import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Scanner;
 
 public class Client {
     public State state = State.SIGNEDOUT;
@@ -24,7 +28,7 @@ public class Client {
 
     private Integer joinedGameID;
 
-    private ChessBoard blankInitializedBoard;
+    public ChessBoard blankInitializedBoard;
 
     public Client(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
@@ -44,11 +48,25 @@ public class Client {
         }
     }
 
+    public void enterGameRepl(TeamColor color) throws ResponseException {
+        if (state != State.GAMING && state != State.OBSERVING) {
+            throw new RuntimeException("Stop it right there!");
+        }
+        else {
+            notificationHandler = new GameRepl(this, visitorUsername, joinedGameID, color);
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.enterGame(server.authToken, joinedGameID);
+            GameRepl gr = (GameRepl) notificationHandler;
+
+            gr.run(this);
+        }
+    }
+
     public void switchState() {
         state = (state == State.SIGNEDIN) ? State.SIGNEDOUT : State.SIGNEDIN;
     }
 
-    public String getUser() {
+    public String getUserPrompt() {
         return (state == State.SIGNEDOUT) ? "": "[" + visitorUsername + "]\n";
     }
 
@@ -66,11 +84,86 @@ public class Client {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
+                case "resign" -> resign();
+                case "move" -> move(params);
+                case "redraw" -> redraw();
+                case "leave" -> leave();
                 default -> notificationHandler.help();
             };
         } catch (ResponseException ex) {
             return handleError(ex.getStatusCode());
         }
+    }
+
+    private String resign() throws ResponseException {
+        mustBeGaming();
+
+        ws.resignGame(server.authToken, joinedGameID);
+        //switchGameState();
+        return "";
+    }
+
+    private String move(String... params) throws ResponseException {
+        mustBeGaming();
+        if (params.length != 2) {
+            System.out.println("Expected: <start> <end>");
+            throw new ResponseException(402, "Incorrect number of Parameters");
+        }
+        ChessPosition start = stringPositionToChessPosition(params[0]);
+        ChessPosition end = stringPositionToChessPosition(params[1]);
+        ChessMove move = new ChessMove(start, end);
+        String stringMove = serialize(move);
+
+        ws.makeMove(server.authToken, joinedGameID, stringMove);
+        return "";
+    }
+
+    private String serialize(Object o) {
+        return new Gson().toJson(o);
+    }
+
+    private ChessPosition stringPositionToChessPosition(String position) throws ResponseException{
+        if (position == null || position.length() != 2 ||
+                !Character.isLetter(position.charAt(0)) ||
+                !Character.isDigit(position.charAt(1))) {
+            System.out.println("Expected the column letter followed by the row number. \n " +
+                    "For example: 'd1' is the starting position of the White Queen.");
+            throw new ResponseException(400, "Invalid chess position:" + position);
+        }
+
+        // Normalize column to lowercase to handle both 'a'-'h' and 'A'-'H'
+        char columnChar = Character.toLowerCase(position.charAt(0));
+        int col = columnChar - 'a' + 1; // 'a' maps to 1
+        int row = position.charAt(1) - '0'; // Convert digit to int
+
+        // Ensure the values are within valid chessboard bounds
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            throw new ResponseException(400, "Position out of chessboard bounds: " + position);
+        }
+
+        return new ChessPosition(row, col);
+    }
+
+
+    private String redraw() throws ResponseException{
+        mustNotBeLoggedIn();
+        System.out.println("Are you sure that you want to resign?");
+        Scanner sc = new Scanner(System.in);
+        return sc.nextLine();
+    }
+
+    private String leave() throws ResponseException {
+
+        if (state != State.GAMING && state != State.OBSERVING) {
+            throw new ResponseException(400, "not in a game");
+        }
+        if (joinedGameID == null) {
+            throw new ResponseException(400, "No joined gameID");
+        }
+        ws.leaveGame(server.authToken, joinedGameID);
+        joinedGameID = null;
+
+        return "quit";
     }
 
     private String quit() {
@@ -87,6 +180,12 @@ public class Client {
     public void mustBeLoggedIn() throws ResponseException {
         if (state == State.SIGNEDOUT) {
             throw new ResponseException(401, "not signed in");
+        }
+    }
+
+    public void mustBeGaming() throws ResponseException {
+        if (state == State.OBSERVING) {
+            throw new ResponseException(401, "not playing");
         }
     }
 
@@ -120,12 +219,8 @@ public class Client {
     }
 
     public String logout() throws ResponseException {
+        mustBeLoggedIn();
         server.logout(new LogoutRequest());
-
-        if (joinedGameID == null) { throw new ResponseException(400, "No joined gameID"); }
-        ws.leaveGame(server.authToken, joinedGameID);
-        joinedGameID = null;
-
         enterNextRepl();
         PreLoginRepl preLogin = (PreLoginRepl) notificationHandler;
         preLogin.run(this);
@@ -133,6 +228,7 @@ public class Client {
     }
 
     public String list() throws ResponseException {
+        mustBeLoggedIn();
         ListResponse response = server.list(new ListRequest());
         Collection<GameDataListItem> games = response.games();
         StringBuilder sb = new StringBuilder();
@@ -176,15 +272,15 @@ public class Client {
             int gameID = Integer.parseInt(params[1]);
             server.joinGame(new JoinGameRequest(color,gameID));
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.enterGame(server.authToken, gameID);
             joinedGameID = gameID;
-
-            return new ChessBoardUI().createChessBoard(color, blankInitializedBoard);
+            state = State.GAMING;
+            enterGameRepl(color);
         }
         catch (NumberFormatException e) {
             throw new ResponseException(400, "<ID> Must be a Number");
         }
+
+        return "";
     }
 
     public String observe(String... params) throws ResponseException {
@@ -200,11 +296,11 @@ public class Client {
         catch (NumberFormatException e) {
             throw new ResponseException(400, "<ID> Must be a Number");
         }
-        ws = new WebSocketFacade(serverUrl, notificationHandler);
-        ws.enterGame(server.authToken, gameID);
         joinedGameID = gameID;
+        state = State.OBSERVING;
+        enterGameRepl(TeamColor.WHITE);
 
-        return new ChessBoardUI().createChessBoard(TeamColor.WHITE, blankInitializedBoard);
+        return "";
     }
 
     private String handleError(int status) {
