@@ -43,9 +43,6 @@ public class LoginService {
         }
     }
     private boolean passwordUnverified(String clearTextPassword, String hashedPassword) {
-        if (Objects.equals(clearTextPassword, hashedPassword)) {
-            return false;
-        }
         return !BCrypt.checkpw(clearTextPassword, hashedPassword);
     }
 }

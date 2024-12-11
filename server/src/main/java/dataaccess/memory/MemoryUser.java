@@ -3,6 +3,7 @@ package dataaccess.memory;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
 
@@ -17,7 +18,9 @@ public class MemoryUser implements UserDAO {
                 userData.email() == null) {
             throw new DataAccessException("userData with null params supplied");
         }
-        USERS.put(userData.username(), userData);
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        UserData newUserData = new UserData(userData.username(), hashedPassword, userData.email());
+        USERS.put(userData.username(), newUserData);
     }
 
     @Override
