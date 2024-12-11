@@ -2,6 +2,7 @@ package websocket;
 
 import client.exceptions.ResponseException;
 import com.google.gson.Gson;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -13,6 +14,7 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
     Session session;
     NotificationHandler notificationHandler;
+
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
@@ -50,9 +52,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, Integer gameID) throws ResponseException {
+    public void makeMove(String authToken, Integer gameID, String move) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+            var action = new MakeMoveCommand(authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

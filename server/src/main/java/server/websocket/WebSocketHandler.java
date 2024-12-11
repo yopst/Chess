@@ -24,7 +24,6 @@ public class WebSocketHandler {
     }
 
     private void connect(String authToken, Session session) {
-
     }
 
     private void makeMove() {

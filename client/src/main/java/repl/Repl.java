@@ -1,7 +1,7 @@
 package repl;
 
 import client.Client;
-import websocketmessages.Notification;
+import websocket.messages.ServerMessage;
 import websocket.NotificationHandler;
 
 import java.util.Objects;
@@ -31,10 +31,15 @@ public class Repl implements NotificationHandler {
     }
 
     private void printPrompt(Client client) {
-        System.out.print("\n" + RESET_TEXT_COLOR + client.getUser() + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + client.getUserPrompt() + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String help() {
         return "Generic REPL";
+    }
+
+    @Override
+    public void notify(ServerMessage notification) {
+
     }
 }

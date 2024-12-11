@@ -2,6 +2,7 @@ package repl;
 
 import client.Client;
 import websocket.NotificationHandler;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
@@ -22,7 +23,7 @@ public class PreLoginRepl extends Repl implements NotificationHandler {
         System.out.print(INTRO);
     }
     public PreLoginRepl(Client client) {
-        System.out.println("Successfully signed out " + client.getUser() + RESET_TEXT_COLOR);
+        System.out.println("Successfully signed out " + client.getUserPrompt() + RESET_TEXT_COLOR);
     }
 
     public String help() {
@@ -32,5 +33,10 @@ public class PreLoginRepl extends Repl implements NotificationHandler {
                 - quit
                 - help
                 """;
+    }
+
+    @Override
+    public void notify(ServerMessage notification) {
+
     }
 }
