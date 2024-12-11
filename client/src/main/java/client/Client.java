@@ -9,24 +9,27 @@ import request.*;
 import response.*;
 import ui.ChessBoardUI;
 import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 public class Client {
     public State state = State.SIGNEDOUT;
-
     private String visitorUsername = null;
     private NotificationHandler notificationHandler;
-
+    private WebSocketFacade ws;
+    private final String serverUrl;
     private final ServerFacade server;
+
+    private Integer joinedGameID;
 
     private ChessBoard blankInitializedBoard;
 
     public Client(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
         this.notificationHandler = notificationHandler;
-
+        this.serverUrl = serverUrl;
         blankInitializedBoard = new ChessBoard();
         blankInitializedBoard.resetBoard();
     }
@@ -118,6 +121,11 @@ public class Client {
 
     public String logout() throws ResponseException {
         server.logout(new LogoutRequest());
+
+        if (joinedGameID == null) { throw new ResponseException(400, "No joined gameID"); }
+        ws.leaveGame(server.authToken, joinedGameID);
+        joinedGameID = null;
+
         enterNextRepl();
         PreLoginRepl preLogin = (PreLoginRepl) notificationHandler;
         preLogin.run(this);
@@ -166,7 +174,12 @@ public class Client {
 
         try {
             int gameID = Integer.parseInt(params[1]);
-            JoinGameResponse response = server.joinGame(new JoinGameRequest(color,gameID));
+            server.joinGame(new JoinGameRequest(color,gameID));
+
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.enterGame(server.authToken, gameID);
+            joinedGameID = gameID;
+
             return new ChessBoardUI().createChessBoard(color, blankInitializedBoard);
         }
         catch (NumberFormatException e) {
@@ -180,6 +193,17 @@ public class Client {
             System.out.println("Expected: <ID>");
             throw new ResponseException(402, "Incorrect number of Parameters");
         }
+        int gameID;
+        try {
+            gameID = Integer.parseInt(params[0]);
+        }
+        catch (NumberFormatException e) {
+            throw new ResponseException(400, "<ID> Must be a Number");
+        }
+        ws = new WebSocketFacade(serverUrl, notificationHandler);
+        ws.enterGame(server.authToken, gameID);
+        joinedGameID = gameID;
+
         return new ChessBoardUI().createChessBoard(TeamColor.WHITE, blankInitializedBoard);
     }
 
