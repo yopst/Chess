@@ -10,7 +10,6 @@ public class PostLoginRepl extends Repl implements NotificationHandler{
 
     public PostLoginRepl(Client client) {
         System.out.println("You signed in as " + client.getUser() + RESET_TEXT_COLOR);
-        super.run(client);
     }
 
 

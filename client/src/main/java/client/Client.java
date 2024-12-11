@@ -33,7 +33,12 @@ public class Client {
 
     public void enterNextRepl() {
         switchState();
-        notificationHandler = (state == State.SIGNEDIN) ? new PostLoginRepl( this): new PreLoginRepl(this);
+        if (state == State.SIGNEDIN) {
+            notificationHandler = new PostLoginRepl(this);
+        }
+        else {
+            notificationHandler = new PreLoginRepl(this);
+        }
     }
 
     public void switchState() {
@@ -114,6 +119,8 @@ public class Client {
     public String logout() throws ResponseException {
         server.logout(new LogoutRequest());
         enterNextRepl();
+        PreLoginRepl preLogin = (PreLoginRepl) notificationHandler;
+        preLogin.run(this);
         return "quit";
     }
 

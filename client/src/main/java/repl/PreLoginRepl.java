@@ -23,7 +23,6 @@ public class PreLoginRepl extends Repl implements NotificationHandler {
     }
     public PreLoginRepl(Client client) {
         System.out.println("Successfully signed out " + client.getUser() + RESET_TEXT_COLOR);
-        super.run(client);
     }
 
     public String help() {

@@ -11,7 +11,7 @@ import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
 
-    public void run(Client client) {
+    public void run (Client client) {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
