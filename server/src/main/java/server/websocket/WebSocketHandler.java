@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
@@ -11,7 +12,6 @@ import dataaccess.interfaces.GameDAO;
 import model.GameData;
 import model.GameDataListItem;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.MakeMoveCommand;
@@ -29,11 +29,12 @@ import websocket.messages.Notification;
 
 @WebSocket
 public class WebSocketHandler {
-    private AuthDAO auths;
-    private GameDAO games;
-    private GameData gameData;
+    private final AuthDAO auths;
+    private final GameDAO games;
+
     enum UserRole {WHITE, BLACK, OBSERVER}
     UserRole userRole;
+    String authToken;
 
     public WebSocketHandler() {
         MyDatabaseManager db = MyDatabaseManager.getInstance();
@@ -46,11 +47,12 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
+        authToken = action.getAuthToken();
         switch (action.getCommandType()) {
-            case CONNECT -> connect(action.getAuthToken(), action.getGameID(), session);
-            case MAKE_MOVE -> makeMove();
-            case LEAVE -> leave();
-            case RESIGN -> resign();
+            case CONNECT -> connect(authToken, action.getGameID(), session);
+            case MAKE_MOVE -> makeMove(message);
+            case LEAVE -> leave(authToken);
+            case RESIGN -> resign(authToken);
         }
     }
 
@@ -65,16 +67,15 @@ public class WebSocketHandler {
         return null;
     }
 
-    private ErrorMessage handleErrorMessage(String errorMessage) {
-        String error = "Error: ";
-        switch (errorMessage) {
-            case "Invalid auth: Invalid auth token" -> errorMessage = error + "Invalid auth token";
-
+    private void handleErrorMessage(String errorMessage) {
+        String error = "Error: " + errorMessage;
+        try {
+            connections.get(authToken).send(new ErrorMessage(error).toString());
         }
-        return new ErrorMessage(errorMessage);
+        catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
-
-
 
     private String serializeGame(ChessGame game) {
         return new Gson().toJson(game);
@@ -91,11 +92,11 @@ public class WebSocketHandler {
             if (gameData.gameID() == gameId) {
                 isPresent = true;
                 String username = gameData.whiteUsername() != null ? gameData.whiteUsername() : null;
-                if (username != null && userName.equals(username)) {
+                if (userName.equals(username)) {
                     userRole = UserRole.WHITE;
                 } else {
                     String blackUsername = gameData.blackUsername() != null ? gameData.blackUsername() : null;
-                    if (blackUsername != null && userName.equals(blackUsername)) {
+                    if (userName.equals(blackUsername)) {
                         userRole = UserRole.BLACK;
                     }
                 }
@@ -131,7 +132,7 @@ public class WebSocketHandler {
         try {
         String userName = getUserName(authToken);
         connections.add(authToken, userName, session);
-        gameData = games.getGame(gameID);
+            GameData gameData = games.getGame(gameID);
 
         ChessGame chessGame = gameData.game();
         String gameState = serializeGame(chessGame);
@@ -148,15 +149,48 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove() {
+    private void makeMove(String serializedMakeMoveCommand) {
+        MakeMoveCommand makeMoveCommand = new Gson().fromJson(serializedMakeMoveCommand, MakeMoveCommand.class);
+        ChessMove move = makeMoveCommand.deserializeChessMove();
+        String authToken = makeMoveCommand.getAuthToken();
+        getUserName(authToken);
+        Integer gameId = makeMoveCommand.getGameID();
+        try {
+            GameData gameData = games.getGame(gameId);
+            ChessGame chessGame = gameData.game();
+            chessGame.makeMove(move);
+            String gameState = serializeGame(chessGame);
 
+            LoadGameMessage loadGameMessage = new LoadGameMessage(gameState);
+            connections.broadcast(loadGameMessage);
+        }
+        catch (Exception e) {
+            handleErrorMessage(e.getMessage());
+        }
     }
 
-    private void leave() {
-
+    private void leave(String authToken) {
+        String userName = getUserName(authToken);
+        connections.remove(authToken);
+        String message = String.format("%s has left.", userName);
+        Notification notification = new Notification(message);
+        try {
+            connections.broadcastExcept(userName, notification);
+        }
+        catch (IOException e) {
+            handleErrorMessage(e.getMessage());
+        }
     }
 
-    private void resign() {
-
+    private void resign(String authToken) {
+        String userName = getUserName(authToken);
+        String message = String.format("%s has resigned.", userName);
+        Notification notification = new Notification(message);
+        try {
+            connections.broadcastExcept(userName, notification);
+        }
+        catch (IOException e) {
+            handleErrorMessage(e.getMessage());
+        }
     }
 }

@@ -12,9 +12,9 @@ public class MakeMoveCommand extends UserGameCommand {
         this.move = serializedChessMove;
     }
 
-    private ChessMove deserializeChessMove(String move) {
+    public ChessMove deserializeChessMove() {
         Gson gson = new Gson();
-        return gson.fromJson(move, ChessMove.class);
+        return gson.fromJson(this.move, ChessMove.class);
     }
 
 

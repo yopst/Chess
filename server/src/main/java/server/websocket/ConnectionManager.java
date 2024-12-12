@@ -23,7 +23,22 @@ public class ConnectionManager {
         return connections.get(authToken);
     }
 
-    
+    public void broadcast (ServerMessage notification) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                c.send(notification.toString());
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.userName);
+        }
+    }
+
 
     public void broadcastExcept(String excludeVisitorName, ServerMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
