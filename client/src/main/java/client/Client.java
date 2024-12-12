@@ -10,7 +10,6 @@ import model.GameDataListItem;
 import repl.*;
 import request.*;
 import response.*;
-import ui.ChessBoardUI;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 
@@ -53,11 +52,17 @@ public class Client {
             throw new RuntimeException("Stop it right there!");
         }
         else {
+            if (state == State.OBSERVING) {color = null;}
             notificationHandler = new GameRepl(this, visitorUsername, joinedGameID, color);
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.enterGame(server.authToken, joinedGameID);
-            GameRepl gr = (GameRepl) notificationHandler;
 
+            ws = new WebSocketFacade(serverUrl,
+                    notificationHandler,
+                    color,
+                    joinedGameID);
+
+            ws.enterGame(server.authToken, joinedGameID);
+
+            GameRepl gr = (GameRepl) notificationHandler;
             gr.run(this);
         }
     }
@@ -99,7 +104,7 @@ public class Client {
         mustBeGaming();
 
         ws.resignGame(server.authToken, joinedGameID);
-        //switchGameState();
+        state = State.OBSERVING;
         return "";
     }
 

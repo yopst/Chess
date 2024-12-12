@@ -16,10 +16,19 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+    public enum UseRole {WHITE, BLACK, OBSERVING}
+
+    UseRole useRole;
+
+    public UserGameCommand(CommandType commandType,
+                           String authToken, Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
+    }
+
+    public void setRole(UseRole useRole) {
+        this.useRole = useRole;
     }
 
     public enum CommandType {

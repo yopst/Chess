@@ -7,9 +7,9 @@ public class MakeMoveCommand extends UserGameCommand {
     public ChessMove move;
 
     public MakeMoveCommand(String authToken, Integer gameID,
-                           String chessMove) {
+                           String serializedChessMove) {
         super(CommandType.MAKE_MOVE, authToken, gameID);
-        this.move = deserializeChessMove(chessMove);
+        this.move = deserializeChessMove(serializedChessMove);
     }
 
     private ChessMove deserializeChessMove(String move) {

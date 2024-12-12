@@ -14,6 +14,8 @@ public class ChessGame {
     private ChessBoard board;
     private ChessBoard lastBoard;
 
+    public boolean finished;
+
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
         board = new ChessBoard();
@@ -334,6 +336,7 @@ public class ChessGame {
                 return false;
             }
         }
+        finished = true;
         return true;
     }
 

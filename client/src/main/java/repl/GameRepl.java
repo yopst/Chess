@@ -10,8 +10,8 @@ import static ui.EscapeSequences.*;
 
 public class GameRepl extends Repl implements NotificationHandler {
     private final Client client;
-    private final String visitorUsername;
-    private final Integer gameID;
+    public final String visitorUsername;
+    public final Integer gameID;
     private final ChessGame.TeamColor color;
 
     public GameRepl(Client client, String visitorUsername, Integer gameID, ChessGame.TeamColor color) {
@@ -21,7 +21,7 @@ public class GameRepl extends Repl implements NotificationHandler {
         this.color = color;
 
         if (client.state == State.GAMING) {
-            String strColor = (color == ChessGame.TeamColor.WHITE) ? "White:": "Black";
+            String strColor = (color == ChessGame.TeamColor.WHITE) ? "White": "Black";
             System.out.println("You are playing as " + strColor);
         }
         else {
